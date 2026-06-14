@@ -11,6 +11,7 @@ import userRouter from "./routes/user.route.js";
 import categoryRouter from "./routes/category.route.js"; 
 import productRouter from "./routes/product.route.js";
 import cartRouter from "./routes/cart.route.js";
+import subCategoryRouter from "./routes/subCategory.route.js";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use("/api/user", userRouter);
 app.use("/api/category", categoryRouter); 
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/subcategory", subCategoryRouter);
 
 app.get("/", (req, res) => {
     res.json({ message: "QuickRasan Server is alive!" });
