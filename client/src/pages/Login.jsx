@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { FaRegEyeSlash } from "react-icons/fa6";
-import { FaRegEye } from "react-icons/fa6";
+import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 import toast from 'react-hot-toast';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
@@ -11,115 +10,56 @@ import { useDispatch } from 'react-redux';
 import { setUserDetails } from '../store/userSlice';
 
 const Login = () => {
-    const [data, setData] = useState({
-        email: "",
-        password: "",
-    })
-    const [showPassword, setShowPassword] = useState(false)
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
+  const [data, setData] = useState({ email: "", password: "" })
+  const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-    const handleChange = (e) => {
-        const { name, value } = e.target
+  const handleChange = (e) => setData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  const valid = Object.values(data).every(el => el)
 
-        setData((preve) => {
-            return {
-                ...preve,
-                [name]: value
-            }
-        })
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await Axios({ ...SummaryApi.login, data })
+      if (res.data.error) return toast.error(res.data.message)
+      if (res.data.success) {
+        localStorage.setItem('accesstoken', res.data.data.accesstoken)
+        localStorage.setItem('refreshToken', res.data.data.refreshToken)
+        const userDetails = await fetchUserDetails()
+        dispatch(setUserDetails(userDetails.data))
+        setData({ email: "", password: "" })
+        navigate("/")
+      }
+    } catch (err) { AxiosToastError(err) }
+  }
 
-    const valideValue = Object.values(data).every(el => el)
-
-
-    const handleSubmit = async(e)=>{
-        e.preventDefault()
-
-        try {
-            const response = await Axios({
-                ...SummaryApi.login,
-                data : data
-            })
-            
-            if(response.data.error){
-                toast.error(response.data.message)
-            }
-
-            if(response.data.success){
-                toast.success(response.data.message)
-                localStorage.setItem('accesstoken',response.data.data.accesstoken)
-                localStorage.setItem('refreshToken',response.data.data.refreshToken)
-
-                const userDetails = await fetchUserDetails()
-                dispatch(setUserDetails(userDetails.data))
-
-                setData({
-                    email : "",
-                    password : "",
-                })
-                navigate("/")
-            }
-
-        } catch (error) {
-            AxiosToastError(error)
-        }
-
-
-
-    }
-    return (
-        <section className='w-full container mx-auto px-2'>
-            <div className='bg-white my-4 w-full max-w-lg mx-auto rounded p-7'>
-
-                <form className='grid gap-4 py-4' onSubmit={handleSubmit}>
-                    <div className='grid gap-1'>
-                        <label htmlFor='email'>Email :</label>
-                        <input
-                            type='email'
-                            id='email'
-                            className='bg-blue-50 p-2 border rounded outline-none focus:border-primary-200'
-                            name='email'
-                            value={data.email}
-                            onChange={handleChange}
-                            placeholder='Enter your email'
-                        />
-                    </div>
-                    <div className='grid gap-1'>
-                        <label htmlFor='password'>Password :</label>
-                        <div className='bg-blue-50 p-2 border rounded flex items-center focus-within:border-primary-200'>
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                id='password'
-                                className='w-full outline-none'
-                                name='password'
-                                value={data.password}
-                                onChange={handleChange}
-                                placeholder='Enter your password'
-                            />
-                            <div onClick={() => setShowPassword(preve => !preve)} className='cursor-pointer'>
-                                {
-                                    showPassword ? (
-                                        <FaRegEye />
-                                    ) : (
-                                        <FaRegEyeSlash />
-                                    )
-                                }
-                            </div>
-                        </div>
-                        <Link to={"/forgot-password"} className='block ml-auto hover:text-primary-200'>Forgot password ?</Link>
-                    </div>
-    
-                    <button disabled={!valideValue} className={` ${valideValue ? "bg-green-800 hover:bg-green-700" : "bg-gray-500" }    text-white py-2 rounded font-semibold my-3 tracking-wide`}>Login</button>
-
-                </form>
-
-                <p>
-                    Don't have account? <Link to={"/register"} className='font-semibold text-green-700 hover:text-green-800'>Register</Link>
-                </p>
+  return (
+    <div className='min-h-[80vh] flex items-center justify-center px-3 bg-gray-50'>
+      <div className='bg-white w-full max-w-sm rounded-2xl shadow-sm border border-gray-100 p-6'>
+        <div className='text-center mb-6'>
+          <h1 className='text-xl font-extrabold text-gray-800'>Welcome Back</h1>
+          <p className='text-sm text-gray-400 mt-1'>Log in to QuickRasan</p>
+        </div>
+        <form className='grid gap-4' onSubmit={handleSubmit}>
+          <div className='grid gap-1.5'>
+            <label className='text-xs font-semibold text-gray-600'>Email</label>
+            <input type='email' name='email' value={data.email} onChange={handleChange} placeholder='Enter your email' className='w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-blinkit focus:ring-1 focus:ring-blinkit/20 transition-all' />
+          </div>
+          <div className='grid gap-1.5'>
+            <label className='text-xs font-semibold text-gray-600'>Password</label>
+            <div className='flex items-center border border-gray-200 rounded-xl px-3 focus-within:border-blinkit focus-within:ring-1 focus-within:ring-blinkit/20 transition-all'>
+              <input type={showPassword ? "text" : "password"} name='password' value={data.password} onChange={handleChange} placeholder='Enter your password' className='w-full py-2.5 outline-none text-sm' />
+              <button type='button' onClick={() => setShowPassword(p => !p)} className='text-gray-400 hover:text-gray-600'>{showPassword ? <FaRegEye /> : <FaRegEyeSlash />}</button>
             </div>
-        </section>
-    )
+            <Link to={"/forgot-password"} className='text-xs text-blinkit hover:underline text-right'>Forgot password?</Link>
+          </div>
+          <button disabled={!valid} className={`w-full py-2.5 rounded-xl font-bold text-sm text-white transition-all ${valid ? 'bg-blinkit hover:bg-blinkit-dark' : 'bg-gray-300 cursor-not-allowed'}`}>Log in</button>
+        </form>
+        <p className='text-center text-sm text-gray-500 mt-5'>Don't have an account? <Link to={"/register"} className='text-blinkit font-semibold hover:underline'>Register</Link></p>
+      </div>
+    </div>
+  )
 }
 
 export default Login

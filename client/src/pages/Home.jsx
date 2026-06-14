@@ -1,9 +1,8 @@
 import React from 'react'
 import banner from '../assets/banner.jpg'
-import bannerMobile from '../assets/banner-mobile.jpg'
 import { useSelector } from 'react-redux'
 import { validURLConvert } from '../utils/validURLConvert'
-import {Link, useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import CategoryWiseProductDisplay from '../components/CategoryWiseProductDisplay'
 
 const Home = () => {
@@ -12,84 +11,53 @@ const Home = () => {
   const subCategoryData = useSelector(state => state.product.allSubCategory)
   const navigate = useNavigate()
 
-  const handleRedirectProductListpage = (id,cat)=>{
-      console.log(id,cat)
-      const subcategory = subCategoryData.find(sub =>{
-        const filterData = sub.category.some(c => {
-          return c._id == id
-        })
-
-        return filterData ? true : null
-      })
-      const url = `/${validURLConvert(cat)}-${id}/${validURLConvert(subcategory.name)}-${subcategory._id}`
-
+  const handleCategoryClick = (id, name) => {
+    const subcategory = subCategoryData.find(sub => {
+      return sub.category.some(c => c._id == id)
+    })
+    if (subcategory) {
+      const url = `/${validURLConvert(name)}-${id}/${validURLConvert(subcategory.name)}-${subcategory._id}`
       navigate(url)
-      console.log(url)
+    }
   }
 
-
   return (
-   <section className='bg-white'>
-      <div className='container mx-auto'>
-          <div className={`w-full h-full min-h-48 bg-blue-100 rounded ${!banner && "animate-pulse my-2" } `}>
-              <img
-                src={banner}
-                className='w-full h-full hidden lg:block'
-                alt='banner' 
-              />
-              <img
-                src={bannerMobile}
-                className='w-full h-full lg:hidden'
-                alt='banner' 
-              />
+    <div className='bg-gray-50 min-h-screen pb-20'>
+      <div className='max-w-7xl mx-auto'>
+        <div className='px-3 pt-3'>
+          <img src={banner} alt='QuickRasan' className='w-full rounded-xl object-cover max-h-36 md:max-h-48' />
+        </div>
+
+        <div className='px-3 mt-4'>
+          <div className='flex items-center justify-between mb-3'>
+            <h2 className='text-lg font-bold text-gray-800'>Shop by Category</h2>
           </div>
-      </div>
-      
-      <div className='container mx-auto px-4 my-2 grid grid-cols-5 md:grid-cols-8 lg:grid-cols-10  gap-2'>
-          {
-            loadingCategory ? (
-              new Array(12).fill(null).map((c,index)=>{
-                return(
-                  <div key={index+"loadingcategory"} className='bg-white rounded p-4 min-h-36 grid gap-2 shadow animate-pulse'>
-                    <div className='bg-blue-100 min-h-24 rounded'></div>
-                    <div className='bg-blue-100 h-8 rounded'></div>
+          <div className='flex gap-3 overflow-x-auto scrollbar-hide pb-2'>
+            {loadingCategory
+              ? Array(8).fill(null).map((_, i) => (
+                  <div key={i} className='animate-pulse flex flex-col items-center gap-1.5 shrink-0'>
+                    <div className='w-16 h-16 bg-gray-200 rounded-full'></div>
+                    <div className='h-3 w-14 bg-gray-200 rounded'></div>
                   </div>
-                )
-              })
-            ) : (
-              categoryData.map((cat,index)=>{
-                return(
-                  <div key={cat._id+"displayCategory"} className='w-full h-full' onClick={()=>handleRedirectProductListpage(cat._id,cat.name)}>
-                    <div>
-                        <img 
-                          src={cat.image}
-                          className='w-full h-full object-scale-down'
-                        />
+                ))
+              : categoryData.map((cat) => (
+                  <div key={cat._id} onClick={() => handleCategoryClick(cat._id, cat.name)} className='flex flex-col items-center gap-1.5 cursor-pointer shrink-0 hover:opacity-80 transition-opacity'>
+                    <div className='w-16 h-16 rounded-full overflow-hidden border border-gray-100 shadow-sm bg-white p-1'>
+                      <img src={cat.image} alt={cat.name} className='w-full h-full object-cover rounded-full' />
                     </div>
+                    <span className='text-[11px] font-medium text-gray-600 text-center leading-tight max-w-[64px]'>{cat.name}</span>
                   </div>
-                )
-              })
-              
-            )
-          }
+                ))}
+          </div>
+        </div>
+
+        <div className='mt-2'>
+          {categoryData?.map((c) => (
+            <CategoryWiseProductDisplay key={c._id} id={c._id} name={c.name} />
+          ))}
+        </div>
       </div>
-
-      {/***display category product */}
-      {
-        categoryData?.map((c,index)=>{
-          return(
-            <CategoryWiseProductDisplay 
-              key={c?._id+"CategorywiseProduct"} 
-              id={c?._id} 
-              name={c?.name}
-            />
-          )
-        })
-      }
-
-
-
-   </section>
+    </div>
   )
 }
 

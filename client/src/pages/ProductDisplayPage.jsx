@@ -1,229 +1,106 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import SummaryApi from '../common/SummaryApi'
 import Axios from '../utils/Axios'
 import AxiosToastError from '../utils/AxiosToastError'
-import { FaAngleRight,FaAngleLeft } from "react-icons/fa6";
 import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
-import Divider from '../components/Divider'
+import { pricewithDiscount } from '../utils/PriceWithDiscount'
+import AddToCartButton from '../components/AddToCartButton'
 import image1 from '../assets/minute_delivery.png'
 import image2 from '../assets/Best_Prices_Offers.png'
 import image3 from '../assets/Wide_Assortment.png'
-import { pricewithDiscount } from '../utils/PriceWithDiscount'
-import AddToCartButton from '../components/AddToCartButton'
 
 const ProductDisplayPage = () => {
   const params = useParams()
-  let productId = params?.product?.split("-")?.slice(-1)[0]
-  const [data,setData] = useState({
-    name : "",
-    image : []
-  })
-  const [image,setImage] = useState(0)
-  const [loading,setLoading] = useState(false)
-  const imageContainer = useRef()
+  const productId = params?.product?.split("-")?.slice(-1)[0]
+  const [data, setData] = useState({ name: "", image: [] })
+  const [image, setImage] = useState(0)
 
-  const fetchProductDetails = async()=>{
+  const fetchProductDetails = async () => {
     try {
-        const response = await Axios({
-          ...SummaryApi.getProductDetails,
-          data : {
-            productId : productId 
-          }
-        })
-
-        const { data : responseData } = response
-
-        if(responseData.success){
-          setData(responseData.data)
-        }
-    } catch (error) {
-      AxiosToastError(error)
-    }finally{
-      setLoading(false)
-    }
+      const res = await Axios({ ...SummaryApi.getProductDetails, data: { productId } })
+      if (res.data.success) setData(res.data.data)
+    } catch (err) { AxiosToastError(err) }
   }
 
-  useEffect(()=>{
-    fetchProductDetails()
-  },[params])
-  
-  const handleScrollRight = ()=>{
-    imageContainer.current.scrollLeft += 100
-  }
-  const handleScrollLeft = ()=>{
-    imageContainer.current.scrollLeft -= 100
-  }
-  console.log("product data",data)
+  useEffect(() => { fetchProductDetails() }, [params])
+
   return (
-    <section className='container mx-auto p-4 grid lg:grid-cols-2 '>
-        <div className=''>
-            <div className='bg-white lg:min-h-[65vh] lg:max-h-[65vh] rounded min-h-56 max-h-56 h-full w-full'>
-                <img
-                    src={data.image[image]}
-                    className='w-full h-full object-scale-down'
-                /> 
+    <div className='bg-gray-50 min-h-screen'>
+      <div className='max-w-7xl mx-auto px-3 py-4'>
+        <div className='lg:grid lg:grid-cols-2 lg:gap-8 bg-white rounded-2xl p-4 lg:p-8 shadow-sm border border-gray-100'>
+          <div>
+            <div className='bg-white rounded-xl border border-gray-100 h-64 lg:h-96 flex items-center justify-center p-6'>
+              <img src={data.image[image]} className='w-full h-full object-contain' />
             </div>
-            <div className='flex items-center justify-center gap-3 my-2'>
-              {
-                data.image.map((img,index)=>{
-                  return(
-                    <div key={img+index+"point"} className={`bg-slate-200 w-3 h-3 lg:w-5 lg:h-5 rounded-full ${index === image && "bg-slate-300"}`}></div>
-                  )
-                })
-              }
+            <div className='flex items-center justify-center gap-2 mt-3'>
+              {data.image.map((_, i) => (
+                <button key={i} onClick={() => setImage(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === image ? 'bg-blinkit w-4' : 'bg-gray-300'}`} />
+              ))}
             </div>
-            <div className='grid relative'>
-                <div ref={imageContainer} className='flex gap-4 z-10 relative w-full overflow-x-auto scrollbar-none'>
-                      {
-                        data.image.map((img,index)=>{
-                          return(
-                            <div className='w-20 h-20 min-h-20 min-w-20 scr cursor-pointer shadow-md' key={img+index}>
-                              <img
-                                  src={img}
-                                  alt='min-product'
-                                  onClick={()=>setImage(index)}
-                                  className='w-full h-full object-scale-down' 
-                              />
-                            </div>
-                          )
-                        })
-                      }
-                </div>
-                <div className='w-full -ml-3 h-full hidden lg:flex justify-between absolute  items-center'>
-                    <button onClick={handleScrollLeft} className='z-10 bg-white relative p-1 rounded-full shadow-lg'>
-                        <FaAngleLeft/>
-                    </button>
-                    <button onClick={handleScrollRight} className='z-10 bg-white relative p-1 rounded-full shadow-lg'>
-                        <FaAngleRight/>
-                    </button>
-                </div>
+            <div className='flex gap-2 mt-3 overflow-x-auto scrollbar-hide pb-1'>
+              {data.image.map((img, i) => (
+                <button key={i} onClick={() => setImage(i)} className={`shrink-0 w-14 h-14 border-2 rounded-lg p-1 bg-white ${i === image ? 'border-blinkit' : 'border-gray-200'}`}>
+                  <img src={img} className='w-full h-full object-contain' />
+                </button>
+              ))}
             </div>
-            <div>
-            </div>
+          </div>
 
-            <div className='my-4  hidden lg:grid gap-3 '>
-                <div>
-                    <p className='font-semibold'>Description</p>
-                    <p className='text-base'>{data.description}</p>
-                </div>
-                <div>
-                    <p className='font-semibold'>Unit</p>
-                    <p className='text-base'>{data.unit}</p>
-                </div>
-                {
-                  data?.more_details && Object.keys(data?.more_details).map((element,index)=>{
-                    return(
-                      <div>
-                          <p className='font-semibold'>{element}</p>
-                          <p className='text-base'>{data?.more_details[element]}</p>
-                      </div>
-                    )
-                  })
-                }
-            </div>
-        </div>
-
-
-        <div className='p-4 lg:pl-7 text-base lg:text-lg'>
-            <p className='bg-green-300 w-fit px-2 rounded-full'>10 Min</p>
-            <h2 className='text-lg font-semibold lg:text-3xl'>{data.name}</h2>  
-            <p className=''>{data.unit}</p> 
-            <Divider/>
-            <div>
-              <p className=''>Price</p> 
-              <div className='flex items-center gap-2 lg:gap-4'>
-                <div className='border border-green-600 px-4 py-2 rounded bg-green-50 w-fit'>
-                    <p className='font-semibold text-lg lg:text-xl'>{DisplayPriceInRupees(pricewithDiscount(data.price,data.discount))}</p>
-                </div>
-                {
-                  data.discount && (
-                    <p className='line-through'>{DisplayPriceInRupees(data.price)}</p>
-                  )
-                }
-                {
-                  data.discount && (
-                    <p className="font-bold text-green-600 lg:text-2xl">{data.discount}% <span className='text-base text-neutral-500'>Discount</span></p>
-                  )
-                }
-                
+          <div className='mt-4 lg:mt-0 lg:pl-6'>
+            <span className='text-xs font-semibold text-blinkit bg-blinkit-light px-2 py-0.5 rounded-full'>10 Mins Delivery</span>
+            <h1 className='text-xl lg:text-3xl font-bold text-gray-800 mt-2'>{data.name}</h1>
+            <p className='text-sm text-gray-400 mt-1'>{data.unit}</p>
+            <hr className='my-4 border-gray-100' />
+            <div className='flex items-end gap-3'>
+              <div className='bg-blinkit-light border border-blinkit/20 rounded-xl px-4 py-2'>
+                <p className='text-2xl font-extrabold text-gray-800'>{DisplayPriceInRupees(pricewithDiscount(data.price, data.discount))}</p>
               </div>
-
-            </div> 
-              
-              {
-                data.stock === 0 ? (
-                  <p className='text-lg text-red-500 my-2'>Out of Stock</p>
-                ) 
-                : (
-                  // <button className='my-4 px-4 py-1 bg-green-600 hover:bg-green-700 text-white rounded'>Add</button>
-                  <div className='my-4'>
-                    <AddToCartButton data={data}/>
-                  </div>
-                )
-              }
-           
-
-            <h2 className='font-semibold'>Why shop from QuickRasan? </h2>
-            <div>
-                  <div className='flex  items-center gap-4 my-4'>
-                      <img
-                        src={image1}
-                        alt='superfast delivery'
-                        className='w-20 h-20'
-                      />
-                      <div className='text-sm'>
-                        <div className='font-semibold'>Superfast Delivery</div>
-                        <p>Get your orer delivered to your doorstep at the earliest from dark stores near you.</p>
-                      </div>
-                  </div>
-                  <div className='flex  items-center gap-4 my-4'>
-                      <img
-                        src={image2}
-                        alt='Best prices offers'
-                        className='w-20 h-20'
-                      />
-                      <div className='text-sm'>
-                        <div className='font-semibold'>Best Prices & Offers</div>
-                        <p>Best price destination with offers directly from the nanufacturers.</p>
-                      </div>
-                  </div>
-                  <div className='flex  items-center gap-4 my-4'>
-                      <img
-                        src={image3}
-                        alt='Wide Assortment'
-                        className='w-20 h-20'
-                      />
-                      <div className='text-sm'>
-                        <div className='font-semibold'>Wide Assortment</div>
-                        <p>Choose from 5000+ products across food personal care, household & other categories.</p>
-                      </div>
-                  </div>
+              {data.discount > 0 && <p className='text-sm text-gray-400 line-through'>{DisplayPriceInRupees(data.price)}</p>}
+              {data.discount > 0 && <p className='text-sm font-bold text-blinkit'>{data.discount}% OFF</p>}
+            </div>
+            <div className='mt-5'>
+              {data.stock === 0 ? (
+                <p className='text-red-500 font-semibold'>Out of Stock</p>
+              ) : (
+                <AddToCartButton data={data} />
+              )}
             </div>
 
-            {/****only mobile */}
-            <div className='my-4 grid gap-3 '>
-                <div>
-                    <p className='font-semibold'>Description</p>
-                    <p className='text-base'>{data.description}</p>
+            {data.description && (
+              <div className='mt-6'>
+                <h3 className='font-semibold text-gray-800 text-sm'>Description</h3>
+                <p className='text-sm text-gray-600 mt-1'>{data.description}</p>
+              </div>
+            )}
+
+            {data?.more_details && Object.keys(data.more_details).map((k) => (
+              <div key={k} className='mt-2'>
+                <h3 className='font-semibold text-gray-800 text-sm capitalize'>{k}</h3>
+                <p className='text-sm text-gray-600'>{data.more_details[k]}</p>
+              </div>
+            ))}
+
+            <hr className='my-5 border-gray-100' />
+            <h3 className='font-semibold text-gray-800 text-sm mb-3'>Why shop from QuickRasan?</h3>
+            <div className='grid gap-3'>
+              {[{ img: image1, title: 'Superfast Delivery', desc: 'Get your order delivered to your doorstep at the earliest from dark stores near you.' },
+                { img: image2, title: 'Best Prices & Offers', desc: 'Best price destination with offers directly from the manufacturers.' },
+                { img: image3, title: 'Wide Assortment', desc: 'Choose from 5000+ products across food, personal care, household & other categories.' }
+              ].map((item, i) => (
+                <div key={i} className='flex items-center gap-3'>
+                  <img src={item.img} className='w-12 h-12 object-contain' />
+                  <div>
+                    <p className='text-sm font-semibold text-gray-800'>{item.title}</p>
+                    <p className='text-xs text-gray-500'>{item.desc}</p>
+                  </div>
                 </div>
-                <div>
-                    <p className='font-semibold'>Unit</p>
-                    <p className='text-base'>{data.unit}</p>
-                </div>
-                {
-                  data?.more_details && Object.keys(data?.more_details).map((element,index)=>{
-                    return(
-                      <div>
-                          <p className='font-semibold'>{element}</p>
-                          <p className='text-base'>{data?.more_details[element]}</p>
-                      </div>
-                    )
-                  })
-                }
+              ))}
             </div>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
   )
 }
 

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { FaRegEyeSlash } from "react-icons/fa6";
-import { FaRegEye } from "react-icons/fa6";
+import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 import toast from 'react-hot-toast';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
@@ -8,156 +7,64 @@ import AxiosToastError from '../utils/AxiosToastError';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
-    const [data, setData] = useState({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: ""
-    })
-    const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-    const navigate = useNavigate()
+  const [data, setData] = useState({ name: "", email: "", password: "", confirmPassword: "" })
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const navigate = useNavigate()
 
-    const handleChange = (e) => {
-        const { name, value } = e.target
+  const handleChange = (e) => setData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  const valid = Object.values(data).every(el => el)
 
-        setData((preve) => {
-            return {
-                ...preve,
-                [name]: value
-            }
-        })
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (data.password !== data.confirmPassword) return toast.error("Passwords don't match")
+    try {
+      const res = await Axios({ ...SummaryApi.register, data })
+      if (res.data.error) return toast.error(res.data.message)
+      if (res.data.success) {
+        toast.success(res.data.message)
+        setData({ name: "", email: "", password: "", confirmPassword: "" })
+        navigate("/login")
+      }
+    } catch (err) { AxiosToastError(err) }
+  }
 
-    const valideValue = Object.values(data).every(el => el)
-
-
-    const handleSubmit = async(e)=>{
-        e.preventDefault()
-
-        if(data.password !== data.confirmPassword){
-            toast.error(
-                "password and confirm password must be same"
-            )
-            return
-        }
-
-        try {
-            const response = await Axios({
-                ...SummaryApi.register,
-                data : data
-            })
-            
-            if(response.data.error){
-                toast.error(response.data.message)
-            }
-
-            if(response.data.success){
-                toast.success(response.data.message)
-                setData({
-                    name : "",
-                    email : "",
-                    password : "",
-                    confirmPassword : ""
-                })
-                navigate("/login")
-            }
-
-        } catch (error) {
-            AxiosToastError(error)
-        }
-
-
-
-    }
-    return (
-        <section className='w-full container mx-auto px-2'>
-            <div className='bg-white my-4 w-full max-w-lg mx-auto rounded p-7'>
-                <p>Welcome to Fullstack</p>
-
-                <form className='grid gap-4 mt-6' onSubmit={handleSubmit}>
-                    <div className='grid gap-1'>
-                        <label htmlFor='name'>Name :</label>
-                        <input
-                            type='text'
-                            id='name'
-                            autoFocus
-                            className='bg-blue-50 p-2 border rounded outline-none focus:border-primary-200'
-                            name='name'
-                            value={data.name}
-                            onChange={handleChange}
-                            placeholder='Enter your name'
-                        />
-                    </div>
-                    <div className='grid gap-1'>
-                        <label htmlFor='email'>Email :</label>
-                        <input
-                            type='email'
-                            id='email'
-                            className='bg-blue-50 p-2 border rounded outline-none focus:border-primary-200'
-                            name='email'
-                            value={data.email}
-                            onChange={handleChange}
-                            placeholder='Enter your email'
-                        />
-                    </div>
-                    <div className='grid gap-1'>
-                        <label htmlFor='password'>Password :</label>
-                        <div className='bg-blue-50 p-2 border rounded flex items-center focus-within:border-primary-200'>
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                id='password'
-                                className='w-full outline-none'
-                                name='password'
-                                value={data.password}
-                                onChange={handleChange}
-                                placeholder='Enter your password'
-                            />
-                            <div onClick={() => setShowPassword(preve => !preve)} className='cursor-pointer'>
-                                {
-                                    showPassword ? (
-                                        <FaRegEye />
-                                    ) : (
-                                        <FaRegEyeSlash />
-                                    )
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    <div className='grid gap-1'>
-                        <label htmlFor='confirmPassword'>Confirm Password :</label>
-                        <div className='bg-blue-50 p-2 border rounded flex items-center focus-within:border-primary-200'>
-                            <input
-                                type={showConfirmPassword ? "text" : "password"}
-                                id='confirmPassword'
-                                className='w-full outline-none'
-                                name='confirmPassword'
-                                value={data.confirmPassword}
-                                onChange={handleChange}
-                                placeholder='Enter your confirm password'
-                            />
-                            <div onClick={() => setShowConfirmPassword(preve => !preve)} className='cursor-pointer'>
-                                {
-                                    showConfirmPassword ? (
-                                        <FaRegEye />
-                                    ) : (
-                                        <FaRegEyeSlash />
-                                    )
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <button disabled={!valideValue} className={` ${valideValue ? "bg-green-800 hover:bg-green-700" : "bg-gray-500" }    text-white py-2 rounded font-semibold my-3 tracking-wide`}>Register</button>
-
-                </form>
-
-                <p>
-                    Already have account ? <Link to={"/login"} className='font-semibold text-green-700 hover:text-green-800'>Login</Link>
-                </p>
+  return (
+    <div className='min-h-[80vh] flex items-center justify-center px-3 bg-gray-50'>
+      <div className='bg-white w-full max-w-sm rounded-2xl shadow-sm border border-gray-100 p-6'>
+        <div className='text-center mb-6'>
+          <h1 className='text-xl font-extrabold text-gray-800'>Create Account</h1>
+          <p className='text-sm text-gray-400 mt-1'>Join QuickRasan today!</p>
+        </div>
+        <form className='grid gap-4' onSubmit={handleSubmit}>
+          <div className='grid gap-1.5'>
+            <label className='text-xs font-semibold text-gray-600'>Name</label>
+            <input type='text' name='name' value={data.name} onChange={handleChange} placeholder='Enter your name' className='w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-blinkit focus:ring-1 focus:ring-blinkit/20 transition-all' />
+          </div>
+          <div className='grid gap-1.5'>
+            <label className='text-xs font-semibold text-gray-600'>Email</label>
+            <input type='email' name='email' value={data.email} onChange={handleChange} placeholder='Enter your email' className='w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-blinkit focus:ring-1 focus:ring-blinkit/20 transition-all' />
+          </div>
+          <div className='grid gap-1.5'>
+            <label className='text-xs font-semibold text-gray-600'>Password</label>
+            <div className='flex items-center border border-gray-200 rounded-xl px-3 focus-within:border-blinkit focus-within:ring-1 focus-within:ring-blinkit/20 transition-all'>
+              <input type={showPassword ? "text" : "password"} name='password' value={data.password} onChange={handleChange} placeholder='Create a password' className='w-full py-2.5 outline-none text-sm' />
+              <button type='button' onClick={() => setShowPassword(p => !p)} className='text-gray-400 hover:text-gray-600 shrink-0'>{showPassword ? <FaRegEye /> : <FaRegEyeSlash />}</button>
             </div>
-        </section>
-    )
+          </div>
+          <div className='grid gap-1.5'>
+            <label className='text-xs font-semibold text-gray-600'>Confirm Password</label>
+            <div className='flex items-center border border-gray-200 rounded-xl px-3 focus-within:border-blinkit focus-within:ring-1 focus-within:ring-blinkit/20 transition-all'>
+              <input type={showConfirmPassword ? "text" : "password"} name='confirmPassword' value={data.confirmPassword} onChange={handleChange} placeholder='Confirm password' className='w-full py-2.5 outline-none text-sm' />
+              <button type='button' onClick={() => setShowConfirmPassword(p => !p)} className='text-gray-400 hover:text-gray-600 shrink-0'>{showConfirmPassword ? <FaRegEye /> : <FaRegEyeSlash />}</button>
+            </div>
+          </div>
+          <button disabled={!valid} className={`w-full py-2.5 rounded-xl font-bold text-sm text-white transition-all ${valid ? 'bg-blinkit hover:bg-blinkit-dark' : 'bg-gray-300 cursor-not-allowed'}`}>Create Account</button>
+        </form>
+        <p className='text-center text-sm text-gray-500 mt-5'>Already have an account? <Link to={"/login"} className='text-blinkit font-semibold hover:underline'>Log in</Link></p>
+      </div>
+    </div>
+  )
 }
 
 export default Register

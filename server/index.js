@@ -19,23 +19,9 @@ const app = express(); // Pehle 'app' banana zaroori hai
 // --- Middlewares ---
 app.use(express.json()); 
 app.use(cookieParser());
-const allowedOrigins = [
-    process.env.FRONTEND_URL || "http://localhost:5173",
-    "https://quickrasan.vercel.app",
-    "https://www.quickrasan.com",
-    "https://quickrasan.com",
-    "https://www.quickrasan.in",
-    "https://quickrasan.in"
-]
 app.use(cors({
     credentials: true,
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true)
-        } else {
-            callback(null, true) // allow all in dev
-        }
-    }
+    origin: process.env.FRONTEND_URL || "http://localhost:5173" 
 }));
 app.use(morgan("dev"));
 app.use(helmet({

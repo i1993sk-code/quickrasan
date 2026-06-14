@@ -1,4 +1,3 @@
-// Automatically use Render backend in production, localhost in dev
 const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 export const baseURL = isDev ? 'http://localhost:4500' : 'https://quickrasan.onrender.com'
 
