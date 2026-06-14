@@ -3,7 +3,7 @@ import logo from '../assets/logo.png'
 import Search from './Search'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { useGlobalContext } from '../provider/GlobalProvider'
+import { useGlobalContext } from '../Provider/GlobalProvider'
 import { BsCart4 } from "react-icons/bs";
 import { FaRegCircleUser } from "react-icons/fa6";
 import DisplayCartItem from './DisplayCartItem'

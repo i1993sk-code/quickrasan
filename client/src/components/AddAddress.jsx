@@ -1,11 +1,11 @@
 import React from 'react'
 import { useForm } from "react-hook-form"
 import Axios from '../utils/Axios'
-import SummaryApi from '../common/SummaryApi'
+import SummaryApi from '../Common/SummaryApi'
 import toast from 'react-hot-toast'
 import AxiosToastError from '../utils/AxiosToastError'
 import { IoClose } from "react-icons/io5";
-import { useGlobalContext } from '../provider/GlobalProvider'
+import { useGlobalContext } from '../Provider/GlobalProvider'
 
 const AddAddress = ({close}) => {
     const { register, handleSubmit,reset } = useForm()

@@ -3,11 +3,11 @@ import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
 import { Link } from 'react-router-dom'
 import { validURLConvert } from '../utils/validURLConvert'
 import { pricewithDiscount } from '../utils/PriceWithDiscount'
-import SummaryApi from '../common/SummaryApi'
+import SummaryApi from '../Common/SummaryApi'
 import AxiosToastError from '../utils/AxiosToastError'
 import Axios from '../utils/Axios'
 import toast from 'react-hot-toast'
-import { useGlobalContext } from '../provider/GlobalProvider'
+import { useGlobalContext } from '../Provider/GlobalProvider'
 import { useSelector } from 'react-redux'
 import { FaMinus, FaPlus } from "react-icons/fa6";
 

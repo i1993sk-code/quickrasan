@@ -8,8 +8,8 @@ import { setUserDetails } from './store/userSlice';
 import { setAllCategory, setAllSubCategory, setLoadingCategory } from './store/productSlice';
 import { useDispatch } from 'react-redux';
 import Axios from './utils/Axios';
-import SummaryApi from './common/SummaryApi';
-import GlobalProvider from './provider/GlobalProvider';
+import SummaryApi from './Common/SummaryApi';
+import GlobalProvider from './Provider/GlobalProvider';
 import CartMobileLink from './components/CartMobile';
 
 function App() {

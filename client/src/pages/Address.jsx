@@ -5,10 +5,10 @@ import { MdDelete } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
 import EditAddressDetails from '../components/EditAddressDetails';
 import Axios from '../utils/Axios';
-import SummaryApi from '../common/SummaryApi';
+import SummaryApi from '../Common/SummaryApi';
 import toast from 'react-hot-toast';
 import AxiosToastError from '../utils/AxiosToastError';
-import { useGlobalContext } from '../provider/GlobalProvider';
+import { useGlobalContext } from '../Provider/GlobalProvider';
 
 const Address = () => {
   const addressList = useSelector(state => state.addresses.addressList)

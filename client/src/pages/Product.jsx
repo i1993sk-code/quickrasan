@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import SummaryApi from '../common/SummaryApi'
+import SummaryApi from '../Common/SummaryApi'
 import AxiosToastError from '../utils/AxiosToastError'
 import Axios from '../utils/Axios'
 

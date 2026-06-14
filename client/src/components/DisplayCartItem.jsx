@@ -1,7 +1,7 @@
 import React from 'react'
 import { IoClose } from 'react-icons/io5'
 import { Link, useNavigate } from 'react-router-dom'
-import { useGlobalContext } from '../provider/GlobalProvider'
+import { useGlobalContext } from '../Provider/GlobalProvider'
 import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
 import { useSelector } from 'react-redux'
 import AddToCartButton from './AddToCartButton'

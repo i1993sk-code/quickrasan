@@ -1,5 +1,5 @@
 import toast from "react-hot-toast"
-import SummaryApi from "../common/SummaryApi"
+import SummaryApi from "../Common/SummaryApi"
 import Axios from "./Axios"
 import AxiosToastError from "./AxiosToastError"
 

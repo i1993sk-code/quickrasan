@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { FaRegUserCircle } from "react-icons/fa";
 import UserProfileAvatarEdit from '../components/UserProfileAvatarEdit';
 import Axios from '../utils/Axios';
-import SummaryApi from '../common/SummaryApi';
+import SummaryApi from '../Common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
 import toast from 'react-hot-toast';
 import { setUserDetails } from '../store/userSlice';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import CardLoading from '../components/CardLoading'
-import SummaryApi from '../common/SummaryApi'
+import SummaryApi from '../Common/SummaryApi'
 import Axios from '../utils/Axios'
 import AxiosToastError from '../utils/AxiosToastError'
 import CardProduct from '../components/CardProduct'

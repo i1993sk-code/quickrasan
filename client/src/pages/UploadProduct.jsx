@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux'
 import { IoClose } from "react-icons/io5";
 import AddFieldComponent from '../components/AddFieldComponent';
 import Axios from '../utils/Axios';
-import SummaryApi from '../common/SummaryApi';
+import SummaryApi from '../Common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
 import successAlert from '../utils/SuccessAlert';
 import { useEffect } from 'react';
