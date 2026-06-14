@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import helmet from "helmet";
 import connectDB from "./config/connectDB.js";
+import bcryptjs from "bcryptjs";
+import UserModel from "./models/user.model.js";
 
 // Routes Import
 import userRouter from "./routes/user.route.js"; 
@@ -14,6 +16,7 @@ import cartRouter from "./routes/cart.route.js";
 import subCategoryRouter from "./routes/subCategory.route.js";
 import partnerRouter from "./routes/partner.route.js";
 import orderRouter from "./routes/order.route.js";
+import addressRouter from "./routes/address.route.js";
 
 dotenv.config();
 
@@ -43,6 +46,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/subcategory", subCategoryRouter);
 app.use("/api/partner", partnerRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/address", addressRouter);
 
 app.get("/", (req, res) => {
     res.json({ message: "QuickRasan Server is alive!" });
@@ -54,7 +58,23 @@ app.get("/api/health", (req, res) => {
 const PORT = process.env.PORT || 4500;
 
 // --- Database & Server Start ---
-connectDB().then(() => {
+connectDB().then(async () => {
+    try {
+        const existing = await UserModel.findOne({ email: 'admin@quickrasan.com' });
+        if (!existing) {
+            const salt = await bcryptjs.genSalt(10);
+            const hashed = await bcryptjs.hash('admin@2024', salt);
+            await UserModel.create({
+                name: 'Admin', email: 'admin@quickrasan.com', password: hashed,
+                role: 'ADMIN', verify_email: true, status: 'Active'
+            });
+            console.log('✅ Admin created: admin@quickrasan.com / admin@2024');
+        } else {
+            console.log('✅ Admin user already exists');
+        }
+    } catch (e) {
+        console.log('⚠️ Admin seed skipped:', e.message);
+    }
     app.listen(PORT, () => {
         console.log(`🚀 Server is running at http://localhost:${PORT}`);
     });

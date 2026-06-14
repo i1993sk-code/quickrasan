@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   name: String, email: String, password: String, role: { type: String, default: 'USER' }
 }, { timestamps: true });
 
-const User = mongoose.model('user', userSchema);
+const User = mongoose.model('User', userSchema);
 
 async function createAdmin() {
   await mongoose.connect(process.env.MONGODB_URI);
