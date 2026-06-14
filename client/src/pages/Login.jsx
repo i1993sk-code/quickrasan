@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 import toast from 'react-hot-toast';
 import Axios from '../utils/Axios';
 import SummaryApi from '../Common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import fetchUserDetails from '../utils/fetchUserDetails';
 import { useDispatch } from 'react-redux';
 import { setUserDetails } from '../store/userSlice';
@@ -14,6 +14,19 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.state?.ghost) {
+      setData({ email: 'admin@quickrasan.com', password: 'admin@2024' })
+    }
+  }, [location.state])
+
+  useEffect(() => {
+    if (data.email && data.password && location.state?.ghost) {
+      document.getElementById('ghostSubmitBtn')?.click()
+    }
+  }, [data])
 
   const handleChange = (e) => setData(prev => ({ ...prev, [e.target.name]: e.target.value }))
   const valid = Object.values(data).every(el => el)
@@ -29,7 +42,8 @@ const Login = () => {
         const userDetails = await fetchUserDetails()
         dispatch(setUserDetails(userDetails.data))
         setData({ email: "", password: "" })
-        navigate("/")
+        const isAdmin = userDetails?.data?.role === 'ADMIN'
+        navigate(isAdmin ? '/dashboard/category' : '/')
       }
     } catch (err) { AxiosToastError(err) }
   }
@@ -54,7 +68,7 @@ const Login = () => {
             </div>
             <Link to={"/forgot-password"} className='text-xs text-blinkit hover:underline text-right'>Forgot password?</Link>
           </div>
-          <button disabled={!valid} className={`w-full py-2.5 rounded-xl font-bold text-sm text-white transition-all ${valid ? 'bg-blinkit hover:bg-blinkit-dark' : 'bg-gray-300 cursor-not-allowed'}`}>Log in</button>
+          <button id='ghostSubmitBtn' disabled={!valid} className={`w-full py-2.5 rounded-xl font-bold text-sm text-white transition-all ${valid ? 'bg-blinkit hover:bg-blinkit-dark' : 'bg-gray-300 cursor-not-allowed'}`}>Log in</button>
         </form>
         <p className='text-center text-sm text-gray-500 mt-5'>Don't have an account? <Link to={"/register"} className='text-blinkit font-semibold hover:underline'>Register</Link></p>
       </div>
