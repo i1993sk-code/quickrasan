@@ -21,6 +21,7 @@ import ProductListPage from "../pages/ProductListPage";
 import ProductDisplayPage from "../pages/ProductDisplayPage";
 import CartMobile from "../pages/CartMobile";
 import CheckoutPage from "../pages/CheckoutPage";
+import BecomePartner from "../pages/BecomePartner";
 import Success from "../pages/Success";
 import Cancel from "../pages/Cancel";
 
@@ -119,6 +120,10 @@ const router = createBrowserRouter([
             {
                 path : "success",
                 element : <Success/>
+            },
+            {
+                path : 'become-partner',
+                element : <BecomePartner/>
             },
             {
                 path : 'cancel',

@@ -9,7 +9,7 @@ import Axios from '../utils/Axios'
 import toast from 'react-hot-toast'
 import { useGlobalContext } from '../Provider/GlobalProvider'
 import { useSelector } from 'react-redux'
-import { FaMinus, FaPlus } from "react-icons/fa6";
+import { FaMinus, FaPlus, FaBolt } from "react-icons/fa6";
 
 const CardProduct = ({ data }) => {
   const url = `/product/${validURLConvert(data.name)}-${data._id}`
@@ -64,35 +64,38 @@ const CardProduct = ({ data }) => {
   }
 
   return (
-    <Link to={url} className='min-w-[160px] max-w-[160px] md:min-w-[180px] md:max-w-[180px] bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden shrink-0 hover:shadow-md transition-shadow'>
-      <div className='h-32 md:h-36 bg-white flex items-center justify-center p-3'>
-        <img src={data.image[0]} alt={data.name} className='w-full h-full object-contain' />
-      </div>
-      <div className='px-2.5 pb-3'>
+    <Link to={url} className='min-w-[160px] max-w-[160px] md:min-w-[190px] md:max-w-[190px] bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden shrink-0 hover:shadow-lg hover:border-primary/20 transition-all duration-300 group'>
+      <div className='relative h-36 md:h-40 bg-gradient-to-b from-primary-light/50 to-white flex items-center justify-center p-3'>
+        <img src={data.image[0]} alt={data.name} className='w-full h-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300' />
         {data.discount > 0 && (
-          <span className='text-[11px] font-semibold text-blinkit bg-blinkit-light px-1.5 py-0.5 rounded inline-block mb-1'>
+          <span className='absolute top-2 left-2 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm'>
             {data.discount}% OFF
           </span>
         )}
-        <p className='text-[13px] font-semibold text-gray-800 leading-tight line-clamp-2 min-h-[32px]'>{data.name}</p>
+        <span className='absolute top-2 right-2 bg-primary/10 text-primary text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-0.5'>
+          <FaBolt size={8} /> 10 min
+        </span>
+      </div>
+      <div className='px-2.5 pb-3 -mt-1 relative z-10'>
+        <p className='text-[13px] font-bold text-gray-800 leading-tight line-clamp-2 min-h-[32px]'>{data.name}</p>
         <p className='text-[11px] text-gray-400 mt-0.5'>{data.unit}</p>
         <div className='flex items-center justify-between mt-2'>
           <div>
-            <p className='text-sm font-bold text-gray-800'>{DisplayPriceInRupees(discounted)}</p>
+            <p className='text-base font-extrabold text-gray-900'>{DisplayPriceInRupees(discounted)}</p>
             {data.discount > 0 && (
               <p className='text-[11px] text-gray-400 line-through'>{DisplayPriceInRupees(data.price)}</p>
             )}
           </div>
           {data.stock === 0 ? (
-            <span className='text-[11px] text-red-500 font-medium'>Out</span>
+            <span className='text-[11px] text-red-500 font-semibold bg-red-50 px-2 py-0.5 rounded-full'>Out</span>
           ) : isInCart ? (
-            <div className='flex items-center gap-1 bg-blinkit text-white rounded-full'>
-              <button onClick={decQty} className='w-7 h-7 flex items-center justify-center hover:bg-blinkit-dark rounded-full transition-colors'><FaMinus size={10} /></button>
-              <span className='w-5 text-center text-sm font-semibold'>{qty}</span>
-              <button onClick={incQty} className='w-7 h-7 flex items-center justify-center hover:bg-blinkit-dark rounded-full transition-colors'><FaPlus size={10} /></button>
+            <div className='flex items-center gap-1 bg-primary text-white rounded-full shadow-sm'>
+              <button onClick={decQty} className='w-7 h-7 flex items-center justify-center hover:bg-primary-dark rounded-full transition-colors'><FaMinus size={10} /></button>
+              <span className='w-5 text-center text-sm font-bold'>{qty}</span>
+              <button onClick={incQty} className='w-7 h-7 flex items-center justify-center hover:bg-primary-dark rounded-full transition-colors'><FaPlus size={10} /></button>
             </div>
           ) : (
-            <button onClick={handleAdd} disabled={loading} className='text-blinkit border border-blinkit text-xs font-bold px-4 py-1.5 rounded-full hover:bg-blinkit hover:text-white transition-all disabled:opacity-50'>
+            <button onClick={handleAdd} disabled={loading} className='text-primary border-2 border-primary/20 text-xs font-bold px-5 py-1.5 rounded-full bg-primary-light hover:bg-primary hover:text-white transition-all duration-200 disabled:opacity-50 shadow-sm hover:shadow-md'>
               {loading ? '...' : 'ADD'}
             </button>
           )}

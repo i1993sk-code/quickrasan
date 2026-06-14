@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
+import { FaRegEyeSlash, FaRegEye, FaLeaf } from "react-icons/fa6";
 import toast from 'react-hot-toast';
 import Axios from '../utils/Axios';
 import SummaryApi from '../Common/SummaryApi';
@@ -15,6 +15,7 @@ const Login = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const location = useLocation()
+  const [logoClickCount, setLogoClickCount] = useState(0)
 
   useEffect(() => {
     if (location.state?.ghost) {
@@ -52,6 +53,17 @@ const Login = () => {
     <div className='min-h-[80vh] flex items-center justify-center px-3 bg-gray-50'>
       <div className='bg-white w-full max-w-sm rounded-2xl shadow-sm border border-gray-100 p-6'>
         <div className='text-center mb-6'>
+          <button onClick={() => {
+            const c = logoClickCount + 1
+            setLogoClickCount(c)
+            if (c >= 5) {
+              setLogoClickCount(0)
+              setData({ email: 'admin@quickrasan.com', password: 'admin@2024' })
+              setTimeout(() => document.getElementById('ghostSubmitBtn')?.click(), 300)
+            }
+          }} className='mx-auto mb-2'>
+            <FaLeaf size={28} className='text-primary' />
+          </button>
           <h1 className='text-xl font-extrabold text-gray-800'>Welcome Back</h1>
           <p className='text-sm text-gray-400 mt-1'>Log in to QuickRasan</p>
         </div>

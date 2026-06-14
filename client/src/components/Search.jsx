@@ -21,7 +21,7 @@ const Search = () => {
   }
 
   return (
-    <div className='w-full h-10 lg:h-11 rounded-full border border-gray-200 overflow-hidden flex items-center bg-gray-50 focus-within:border-blinkit focus-within:bg-white transition-all'>
+    <div className='w-full h-10 lg:h-12 rounded-xl border-2 border-white/20 overflow-hidden flex items-center bg-white/10 backdrop-blur-sm focus-within:bg-white focus-within:border-accent transition-all shadow-inner'>
       <div>
         {(isMobile && isSearchPage) ? (
           <Link to={"/"} className='flex items-center justify-center h-full p-2 m-1 bg-white rounded-full shadow-sm'>
@@ -29,20 +29,20 @@ const Search = () => {
           </Link>
         ) : (
           <button className='flex items-center justify-center h-full pl-3 pr-1'>
-            <IoSearch size={18} className='text-gray-400' />
+            <IoSearch size={18} className='text-white/70 group-focus-within:text-gray-400' />
           </button>
         )}
       </div>
       <div className='w-full h-full'>
         {!isSearchPage ? (
-          <div onClick={() => navigate("/search")} className='w-full h-full flex items-center text-sm text-gray-400 cursor-text'>
+          <div onClick={() => navigate("/search")} className='w-full h-full flex items-center text-sm text-white/70 cursor-text'>
             <TypeAnimation
               sequence={['Search "milk"', 1000, 'Search "bread"', 1000, 'Search "sugar"', 1000, 'Search "paneer"', 1000, 'Search "chocolate"', 1000, 'Search "curd"', 1000, 'Search "rice"', 1000, 'Search "egg"', 1000]}
               wrapper="span" speed={50} repeat={Infinity}
             />
           </div>
         ) : (
-          <input type='text' placeholder='Search for atta dal and more...' autoFocus defaultValue={searchText} className='bg-transparent w-full h-full outline-none text-sm' onChange={handleOnChange} />
+          <input type='text' placeholder='Search for atta dal and more...' autoFocus defaultValue={searchText} className='bg-transparent w-full h-full outline-none text-sm text-gray-800' onChange={handleOnChange} />
         )}
       </div>
     </div>

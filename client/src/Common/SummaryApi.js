@@ -153,6 +153,10 @@ const SummaryApi = {
     getOrderItems : {
         url : '/api/order/order-list',
         method : 'get'
+    },
+    createPartner : {
+        url : '/api/partner/create',
+        method : 'post'
     }
 }
 

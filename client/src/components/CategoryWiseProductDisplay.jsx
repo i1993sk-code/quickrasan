@@ -40,7 +40,7 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
     <div className='mt-5'>
       <div className='flex items-center justify-between px-3 mb-3'>
         <h3 className='text-base font-bold text-gray-800'>{name}</h3>
-        <Link to={getSubCatUrl()} className='text-sm font-semibold text-blinkit hover:text-blinkit-dark'>See All →</Link>
+        <Link to={getSubCatUrl()} className='text-sm font-bold text-accent hover:text-accent-dark flex items-center gap-1'>See All <span className='text-lg'>→</span></Link>
       </div>
       <div className='relative'>
         <div ref={containerRef} className='flex gap-3 overflow-x-auto scrollbar-hide px-3 pb-2'>
