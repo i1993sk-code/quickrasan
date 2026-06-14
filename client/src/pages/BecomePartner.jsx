@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { FaStore, FaWhatsapp, FaCheckCircle } from "react-icons/fa6";
+import { FaStore, FaWhatsapp } from "react-icons/fa6";
+import { IoCheckmarkCircle } from "react-icons/io5";
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Axios from '../utils/Axios';
@@ -147,7 +148,7 @@ const BecomePartner = () => {
 
         {step === 2 && (
           <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center'>
-            <FaCheckCircle size={48} className='text-primary mx-auto mb-3' />
+            <IoCheckmarkCircle size={48} className='text-primary mx-auto mb-3' />
             <h2 className='text-xl font-extrabold text-gray-800 mb-1'>Application Submitted!</h2>
             <p className='text-sm text-gray-400 mb-4'>Our team will review and contact you within 24 hours.</p>
             <a href='https://wa.me/919608354372' target='_blank' rel='noopener noreferrer'

@@ -6,29 +6,36 @@ import mongoose from "mongoose";
 
  export async function CashOnDeliveryOrderController(request,response){
     try {
-        const userId = request.userId // auth middleware 
-        const { list_items, totalAmt, addressId,subTotalAmt } = request.body 
+        const userId = request.userId
+        const { list_items, totalAmt, addressId,subTotalAmt } = request.body
+
+        const groupOrderId = `GRP-${new mongoose.Types.ObjectId()}`
 
         const payload = list_items.map(el => {
             return({
                 userId : userId,
                 orderId : `ORD-${new mongoose.Types.ObjectId()}`,
-                productId : el.productId._id, 
+                groupOrderId : groupOrderId,
+                productId : el.productId._id,
                 product_details : {
                     name : el.productId.name,
-                    image : el.productId.image
-                } ,
+                    image : el.productId.image,
+                    price : el.productId.price,
+                    discount : el.productId.discount,
+                },
+                quantity : el.quantity || 1,
                 paymentId : "",
                 payment_status : "CASH ON DELIVERY",
-                delivery_address : addressId ,
+                delivery_address : addressId,
                 subTotalAmt  : subTotalAmt,
                 totalAmt  :  totalAmt,
+                order_status : "Pending",
+                delivery_status : "Pending",
             })
         })
 
         const generatedOrder = await OrderModel.insertMany(payload)
 
-        ///remove from the cart
         const removeCartItems = await CartProductModel.deleteMany({ userId : userId })
         const updateInUser = await UserModel.updateOne({ _id : userId }, { shopping_cart : []})
 
@@ -118,6 +125,7 @@ const getOrderProductItems = async({
     payment_status,
  })=>{
     const productList = []
+    const groupOrderId = `GRP-${new mongoose.Types.ObjectId()}`
 
     if(lineItems?.data?.length){
         for(const item of lineItems.data){
@@ -126,16 +134,20 @@ const getOrderProductItems = async({
             const paylod = {
                 userId : userId,
                 orderId : `ORD-${new mongoose.Types.ObjectId()}`,
+                groupOrderId : groupOrderId,
                 productId : product.metadata.productId, 
                 product_details : {
                     name : product.name,
                     image : product.images
-                } ,
+                },
+                quantity : item.quantity || 1,
                 paymentId : paymentId,
                 payment_status : payment_status,
                 delivery_address : addressId,
                 subTotalAmt  : Number(item.amount_total / 100),
                 totalAmt  :  Number(item.amount_total / 100),
+                order_status : "Pending",
+                delivery_status : "Pending",
             }
 
             productList.push(paylod)
@@ -188,13 +200,139 @@ export async function webhookStripe(request,response){
 
 export async function getOrderDetailsController(request,response){
     try {
-        const userId = request.userId // order id
+        const userId = request.userId
 
         const orderlist = await OrderModel.find({ userId : userId }).sort({ createdAt : -1 }).populate('delivery_address')
 
         return response.json({
             message : "order list",
             data : orderlist,
+            error : false,
+            success : true
+        })
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
+    }
+}
+
+export async function getAllOrdersController(request,response){
+    try {
+        const orders = await OrderModel.find()
+            .sort({ createdAt : -1 })
+            .populate('delivery_address')
+            .populate('userId', 'name email mobile')
+
+        return response.json({
+            message : "all orders",
+            data : orders,
+            error : false,
+            success : true
+        })
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
+    }
+}
+
+export async function adminUpdateOrderStatusController(request,response){
+    try {
+        const { orderIds, delivery_status, cancel_reason } = request.body
+
+        if(!orderIds || !Array.isArray(orderIds) || orderIds.length === 0){
+            return response.status(400).json({
+                message : "Order IDs are required",
+                error : true,
+                success : false
+            })
+        }
+
+        const updateData = {}
+
+        if(delivery_status === "Cancelled"){
+            updateData.delivery_status = "Cancelled"
+            updateData.order_status = "Cancelled"
+            updateData.cancel_reason = cancel_reason || "Cancelled by admin"
+            updateData.cancelled_by = "ADMIN"
+        } else if(delivery_status === "Packed"){
+            updateData.delivery_status = "Packed"
+            updateData.order_status = "Confirmed"
+        } else if(delivery_status === "Out for Delivery"){
+            updateData.delivery_status = "Out for Delivery"
+            updateData.order_status = "Shipped"
+        } else if(delivery_status === "Delivered"){
+            updateData.delivery_status = "Delivered"
+            updateData.order_status = "Delivered"
+        } else {
+            updateData.delivery_status = delivery_status
+        }
+
+        const result = await OrderModel.updateMany(
+            { _id : { $in : orderIds } },
+            { $set : updateData }
+        )
+
+        return response.json({
+            message : "Order status updated successfully",
+            data : result,
+            error : false,
+            success : true
+        })
+    } catch (error) {
+        return response.status(500).json({
+            message : error.message || error,
+            error : true,
+            success : false
+        })
+    }
+}
+
+export async function cancelOrderByUserController(request,response){
+    try {
+        const userId = request.userId
+        const { orderId, cancel_reason } = request.body
+
+        if(!cancel_reason){
+            return response.status(400).json({
+                message : "Please provide a reason for cancellation",
+                error : true,
+                success : false
+            })
+        }
+
+        const order = await OrderModel.findOne({ _id : orderId, userId : userId })
+
+        if(!order){
+            return response.status(404).json({
+                message : "Order not found",
+                error : true,
+                success : false
+            })
+        }
+
+        if(order.delivery_status !== "Pending"){
+            return response.status(400).json({
+                message : "Only pending orders can be cancelled",
+                error : true,
+                success : false
+            })
+        }
+
+        order.delivery_status = "Cancelled"
+        order.order_status = "Cancelled"
+        order.cancel_reason = cancel_reason
+        order.cancelled_by = "USER"
+        await order.save()
+
+        return response.json({
+            message : "Order cancelled successfully",
+            data : order,
             error : false,
             success : true
         })
