@@ -18,7 +18,7 @@ function App() {
 
   const fetchUser = async () => {
     const userData = await fetchUserDetails()
-    dispatch(setUserDetails(userData.data))
+    if (userData?.data) dispatch(setUserDetails(userData.data))
   }
 
   const fetchCategory = async () => {

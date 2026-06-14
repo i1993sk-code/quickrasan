@@ -55,13 +55,17 @@ const EditCategory = ({close, fetchData,data : CategoryData}) => {
         }
         setLoading(true)
         const response = await uploadImage(file)
-        const { data : ImageResponse } = response
         setLoading(false)
+
+        if (!response?.data?.url) {
+            toast.error("Failed to upload image")
+            return
+        }
         
         setData((preve)=>{
             return{
                 ...preve,
-                image : ImageResponse.data.url
+                image : response.data.url
             }
         })
     }

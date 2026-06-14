@@ -36,12 +36,16 @@ const EditSubCategory = ({close,data,fetchData}) => {
         }
 
         const response = await uploadImage(file)
-        const { data : ImageResponse } = response
+
+        if (!response?.data?.url) {
+            toast.error("Failed to upload image")
+            return
+        }
 
         setSubCategoryData((preve)=>{
             return{
                 ...preve,
-                image : ImageResponse.data.url
+                image : response.data.url
             }
         })
     }

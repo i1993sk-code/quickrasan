@@ -11,6 +11,7 @@ import Axios from '../utils/Axios';
 import SummaryApi from '../Common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
 import successAlert from '../utils/SuccessAlert';
+import toast from 'react-hot-toast'
 import { useEffect } from 'react';
 
 const EditProductAdmin = ({ close ,data : propsData,fetchProductData}) => {
@@ -57,8 +58,14 @@ const EditProductAdmin = ({ close ,data : propsData,fetchProductData}) => {
     }
     setImageLoading(true)
     const response = await uploadImage(file)
-    const { data: ImageResponse } = response
-    const imageUrl = ImageResponse.data.url
+
+    if (!response?.data?.url) {
+      toast.error("Failed to upload image")
+      setImageLoading(false)
+      return
+    }
+
+    const imageUrl = response.data.url
 
     setData((preve) => {
       return {
