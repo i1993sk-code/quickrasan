@@ -312,7 +312,7 @@ export async function forgotPasswordController(request, response) {
             });
         }
 
-        const otp = Math.floor(100000 + Math.random() * 900000); 
+        const otp = Math.floor(1000 + Math.random() * 9000); 
         const expireTime = new Date(Date.now() + 60 * 60 * 1000); 
 
         await UserModel.findByIdAndUpdate(user._id, {
@@ -322,7 +322,7 @@ export async function forgotPasswordController(request, response) {
 
         await sendEmail({
             sendTo: email,
-            subject: "Forgot password from fullstack",
+            subject: "QuickRasan - Password Reset OTP",
             html: forgotPasswordTemplate({
                 name: user.name,
                 otp: otp
