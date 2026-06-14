@@ -158,6 +158,14 @@ const SummaryApi = {
         url : '/api/partner/create',
         method : 'post'
     },
+    getPartners : {
+        url : '/api/partner/get',
+        method : 'get'
+    },
+    updatePartnerStatus : {
+        url : '/api/partner/update-status',
+        method : 'put'
+    },
     cancelOrder : {
         url : '/api/order/cancel-order',
         method : 'post'

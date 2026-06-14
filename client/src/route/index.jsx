@@ -25,6 +25,7 @@ import BecomePartner from "../pages/BecomePartner";
 import Success from "../pages/Success";
 import Cancel from "../pages/Cancel";
 import AdminDashboard from "../pages/AdminDashboard";
+import AdminPartners from "../pages/AdminPartners";
 
 const router = createBrowserRouter([
     {
@@ -98,6 +99,10 @@ const router = createBrowserRouter([
                     {
                         path : 'admin',
                         element : <AdminPermision><AdminDashboard/></AdminPermision>
+                    },
+                    {
+                        path : 'partners',
+                        element : <AdminPermision><AdminPartners/></AdminPermision>
                     }
                 ]
             },
