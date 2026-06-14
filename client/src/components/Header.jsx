@@ -33,7 +33,7 @@ const Header = () => {
 
           <div className='flex items-center gap-2 lg:gap-3'>
             {user?._id ? (
-              <Link to="/dashboard/profile" className='flex items-center gap-1.5 text-white/90 hover:text-accent text-sm font-medium transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10'>
+              <Link to="/user" className='flex items-center gap-1.5 text-white/90 hover:text-accent text-sm font-medium transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10'>
                 <FaRegCircleUser size={18} />
                 <span className='hidden lg:inline'>Account</span>
               </Link>
