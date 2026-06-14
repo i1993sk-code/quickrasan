@@ -10,7 +10,11 @@ const uploadImageCloudinary = async(image)=>{
       const buffer = image?.buffer||Buffer.from(await image.arrayBuffer())
       
       const uploadImage = await new Promise((resolve,reject)=>{
-            cloudinary.uploader.upload_stream({folder:"fullstack"},(error,uploadResult)=>{
+            cloudinary.uploader.upload_stream({
+              folder: "fullstack",
+              format: 'webp',
+              transformation: [{ quality: 'auto', fetch_format: 'auto' }]
+            },(error,uploadResult)=>{
                 return resolve(uploadResult)
             }).end(buffer)
       })
