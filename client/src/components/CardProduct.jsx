@@ -66,7 +66,7 @@ const CardProduct = ({ data }) => {
   return (
     <Link to={url} className='min-w-[160px] max-w-[160px] md:min-w-[190px] md:max-w-[190px] bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden shrink-0 hover:shadow-lg hover:border-primary/20 transition-all duration-300 group'>
       <div className='relative h-36 md:h-40 bg-gradient-to-b from-primary-light/50 to-white flex items-center justify-center p-3'>
-        <img src={data.image[0]} alt={data.name} className='w-full h-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300' />
+        <img src={data.image[0]} alt={data.name} className='w-full h-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300' onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231B5E20' width='100' height='100'/%3E%3Ctext x='50' y='58' font-family='Arial' font-size='36' font-weight='bold' fill='%23FF8F00' text-anchor='middle'%3EQR%3C/text%3E%3C/svg%3E"; }} />
         {data.discount > 0 && (
           <span className='absolute top-2 left-2 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm'>
             {data.discount}% OFF

@@ -49,7 +49,7 @@ const DisplayCartItem = ({ close }) => {
                 {cartItem.map(item => (
                   <div key={item._id} className='flex items-center gap-3'>
                     <div className='w-16 h-16 shrink-0 bg-primary-light/50 rounded-xl border border-primary/10 p-1'>
-                      <img src={item?.productId?.image[0]} className='w-full h-full object-contain' />
+                      <img src={item?.productId?.image[0]} className='w-full h-full object-contain' onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231B5E20' width='100' height='100'/%3E%3Ctext x='50' y='58' font-family='Arial' font-size='36' font-weight='bold' fill='%23FF8F00' text-anchor='middle'%3EQR%3C/text%3E%3C/svg%3E"; }} />
                     </div>
                     <div className='flex-1 min-w-0'>
                       <p className='text-sm font-semibold text-gray-800 line-clamp-2'>{item?.productId?.name}</p>

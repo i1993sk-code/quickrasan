@@ -31,7 +31,7 @@ const ProductDisplayPage = () => {
         <div className='lg:grid lg:grid-cols-2 lg:gap-8 bg-white rounded-2xl p-4 lg:p-8 shadow-sm border border-gray-100'>
           <div>
             <div className='bg-white rounded-xl border border-gray-100 h-64 lg:h-96 flex items-center justify-center p-6'>
-              <img src={data.image[image]} className='w-full h-full object-contain' />
+              <img src={data.image[image]} className='w-full h-full object-contain' onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231B5E20' width='100' height='100'/%3E%3Ctext x='50' y='58' font-family='Arial' font-size='36' font-weight='bold' fill='%23FF8F00' text-anchor='middle'%3EQR%3C/text%3E%3C/svg%3E"; }} />
             </div>
             <div className='flex items-center justify-center gap-2 mt-3'>
               {data.image.map((_, i) => (

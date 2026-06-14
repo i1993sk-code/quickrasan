@@ -55,7 +55,7 @@ const Profile = () => {
             if(responseData.success){
                 toast.success(responseData.message)
                 const userData = await fetchUserDetails()
-                dispatch(setUserDetails(userData.data))
+                dispatch(setUserDetails(userData?.data))
             }
 
         } catch (error) {

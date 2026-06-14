@@ -60,7 +60,7 @@ const MyOrder = () => {
               </span>
             </div>
             <div className='flex gap-3'>
-              <img src={order.product_details?.image?.[0]} className='w-16 h-16 object-scale-down rounded border' alt={order.product_details?.name} />
+              <img src={order.product_details?.image?.[0]} className='w-16 h-16 object-scale-down rounded border' alt={order.product_details?.name} onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231B5E20' width='100' height='100'/%3E%3Ctext x='50' y='58' font-family='Arial' font-size='36' font-weight='bold' fill='%23FF8F00' text-anchor='middle'%3EQR%3C/text%3E%3C/svg%3E"; }} />
               <div className='flex-1 min-w-0'>
                 <p className='font-medium text-sm truncate'>{order.product_details?.name}</p>
                 <p className='text-xs text-gray-500'>Qty: {order.quantity}</p>
