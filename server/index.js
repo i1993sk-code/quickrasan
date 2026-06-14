@@ -19,9 +19,13 @@ const app = express(); // Pehle 'app' banana zaroori hai
 // --- Middlewares ---
 app.use(express.json()); 
 app.use(cookieParser());
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173").split(",").map(s => s.trim());
 app.use(cors({
     credentials: true,
-    origin: process.env.FRONTEND_URL || "http://localhost:5173" 
+    origin: (origin, cb) => {
+        if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes("*")) return cb(null, true);
+        return cb(null, true);
+    }
 }));
 app.use(morgan("dev"));
 app.use(helmet({
