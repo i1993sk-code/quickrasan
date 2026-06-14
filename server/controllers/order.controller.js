@@ -1,4 +1,4 @@
-import Stripe from "../config/stripe.js";
+import StripeInstance from "../config/stripe.js";
 import CartProductModel from "../models/cartproduct.model.js";
 import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
@@ -103,7 +103,7 @@ export async function paymentController(request,response){
             cancel_url : `${process.env.FRONTEND_URL}/cancel`
         }
 
-        const session = await Stripe.checkout.sessions.create(params)
+        const session = await StripeInstance.checkout.sessions.create(params)
 
         return response.status(200).json(session)
 
@@ -129,7 +129,7 @@ const getOrderProductItems = async({
 
     if(lineItems?.data?.length){
         for(const item of lineItems.data){
-            const product = await Stripe.products.retrieve(item.price.product)
+            const product = await StripeInstance.products.retrieve(item.price.product)
 
             const paylod = {
                 userId : userId,
@@ -168,7 +168,7 @@ export async function webhookStripe(request,response){
   switch (event.type) {
     case 'checkout.session.completed':
       const session = event.data.object;
-      const lineItems = await Stripe.checkout.sessions.listLineItems(session.id)
+      const lineItems = await StripeInstance.checkout.sessions.listLineItems(session.id)
       const userId = session.metadata.userId
       const orderProduct = await getOrderProductItems(
         {
