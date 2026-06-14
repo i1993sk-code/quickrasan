@@ -6,9 +6,6 @@ import AxiosToastError from '../utils/AxiosToastError'
 import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
 import { pricewithDiscount } from '../utils/PriceWithDiscount'
 import AddToCartButton from '../components/AddToCartButton'
-import image1 from '../assets/minute_delivery.png'
-import image2 from '../assets/Best_Prices_Offers.png'
-import image3 from '../assets/Wide_Assortment.png'
 
 const ProductDisplayPage = () => {
   const params = useParams()
@@ -84,12 +81,13 @@ const ProductDisplayPage = () => {
             <hr className='my-5 border-gray-100' />
             <h3 className='font-semibold text-gray-800 text-sm mb-3'>Why shop from QuickRasan?</h3>
             <div className='grid gap-3'>
-              {[{ img: image1, title: 'Superfast Delivery', desc: 'Get your order delivered to your doorstep at the earliest from dark stores near you.' },
-                { img: image2, title: 'Best Prices & Offers', desc: 'Best price destination with offers directly from the manufacturers.' },
-                { img: image3, title: 'Wide Assortment', desc: 'Choose from 5000+ products across food, personal care, household & other categories.' }
+              {[
+                { icon: <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12"><circle cx="24" cy="24" r="22" fill="#1B5E20" opacity=".12"/><path d="M16 30c0-2 1-4 3-5l4-3c1-1 2-3 1-5-1-3-4-4-7-3-2 1-4 3-4 6m18 10c0-2-1-4-3-5l-4-3c-1-1-2-3-1-5 1-3 4-4 7-3 2 1 4 3 4 6" stroke="#1B5E20" strokeWidth="2" strokeLinecap="round"/><path d="M14 32h20v4a2 2 0 01-2 2H16a2 2 0 01-2-2v-4z" fill="#FF8F00" opacity=".8"/><path d="M22 32v4m4-4v4" stroke="#fff" strokeWidth="1.5"/></svg>, title: 'Superfast Delivery', desc: 'Get your order delivered to your doorstep at the earliest from dark stores near you.' },
+                { icon: <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12"><circle cx="24" cy="24" r="22" fill="#1B5E20" opacity=".12"/><path d="M14 26l10-12 10 12v8a2 2 0 01-2 2H16a2 2 0 01-2-2v-8z" fill="#FF8F00" opacity=".8"/><path d="M20 30c0-2 2-4 4-4s4 2 4 4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/><path d="M30 18l-6-8-6 8" stroke="#1B5E20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>, title: 'Best Prices & Offers', desc: 'Best price destination with offers directly from the manufacturers.' },
+                { icon: <svg viewBox="0 0 48 48" fill="none" className="w-12 h-12"><circle cx="24" cy="24" r="22" fill="#1B5E20" opacity=".12"/><rect x="13" y="13" width="8" height="8" rx="1.5" fill="#FF8F00"/><rect x="27" y="13" width="8" height="8" rx="1.5" fill="#1B5E20" opacity=".6"/><rect x="13" y="27" width="8" height="8" rx="1.5" fill="#1B5E20" opacity=".6"/><rect x="27" y="27" width="8" height="8" rx="1.5" fill="#FF8F00"/></svg>, title: 'Wide Assortment', desc: 'Choose from 5000+ products across food, personal care, household & other categories.' }
               ].map((item, i) => (
                 <div key={i} className='flex items-center gap-3'>
-                  <img src={item.img} className='w-12 h-12 object-contain' />
+                  <div className='w-12 h-12 shrink-0'>{item.icon}</div>
                   <div>
                     <p className='text-sm font-semibold text-gray-800'>{item.title}</p>
                     <p className='text-xs text-gray-500'>{item.desc}</p>
