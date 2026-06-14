@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -26,7 +25,6 @@
     "sweetalert2": "^11.26.18"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.3.4",
@@ -36,5 +34,8 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
     "vite": "^5.4.14"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.62.0"
   }
 }
