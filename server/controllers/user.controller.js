@@ -1,4 +1,5 @@
 import sendEmail from "../config/sendEmail.js";
+import { sendOtpSms } from "../config/sendSms.js";
 import UserModel from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import verifyEmailTemplate from '../utils/verifyEmailTemplate.js';
@@ -335,7 +336,7 @@ export async function sendLoginOtpController(request, response) {
             login_otp_expiry: expireTime
         });
 
-        console.log(`[LOGIN OTP] ${mobile} → ${otp}`);
+        await sendOtpSms(mobile, otp);
 
         return response.json({
             message: "OTP sent to your mobile",
