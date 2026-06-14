@@ -10,7 +10,9 @@ import {
     verifyForgotPasswordOtp,
     resetPassword,
     refreshToken,
-    userDetailsController // <--- 2026 Standard: Profile data ke liye import kiya
+    userDetailsController,
+    sendLoginOtpController,
+    verifyLoginOtpController
 } from "../controllers/user.controller.js";
 import auth from "../middleware/auth.js";
 import upload from "../middleware/multer.js";
@@ -23,6 +25,10 @@ userRouter.post("/verify-email", verifyEmailController);
 userRouter.post("/login", loginController);
 userRouter.get("/logout", auth, logoutController);
 userRouter.post("/refresh-token", refreshToken); 
+
+// --- Mobile OTP Login Routes ---
+userRouter.post("/send-login-otp", sendLoginOtpController);
+userRouter.post("/verify-login-otp", verifyLoginOtpController);
 
 // --- Password Management Routes ---
 userRouter.put("/forgot-password", forgotPasswordController);

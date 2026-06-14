@@ -2,13 +2,15 @@ import React, { useState } from 'react'
 import { useGlobalContext } from '../Provider/GlobalProvider'
 import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
 import AddAddress from '../components/AddAddress'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import AxiosToastError from '../utils/AxiosToastError'
 import Axios from '../utils/Axios'
 import SummaryApi from '../Common/SummaryApi'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
+import { setUserDetails } from '../store/userSlice'
+import { getGuestCart, clearGuestCart } from '../utils/guestCart'
 
 const CheckoutPage = () => {
   const { notDiscountTotalPrice, totalPrice, totalQty, fetchCartItem, fetchOrder } = useGlobalContext()
@@ -16,7 +18,58 @@ const CheckoutPage = () => {
   const addressList = useSelector(state => state.addresses.addressList)
   const [selectAddress, setSelectAddress] = useState(0)
   const cartItemsList = useSelector(state => state.cartItem.cart)
+  const user = useSelector(state => state.user)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
+  const isLoggedIn = user?._id
+
+  const [mobile, setMobile] = useState('')
+  const [otp, setOtp] = useState('')
+  const [otpSent, setOtpSent] = useState(false)
+  const [authLoading, setAuthLoading] = useState(false)
+
+  const syncGuestCart = async () => {
+    const guestItems = getGuestCart()
+    if (!guestItems.length) return
+    for (const item of guestItems) {
+      try {
+        await Axios({ ...SummaryApi.addTocart, data: { productId: item.productId } })
+      } catch (e) { /* skip failed items */ }
+    }
+    clearGuestCart()
+    fetchCartItem?.()
+  }
+
+  const handleSendOtp = async () => {
+    if (mobile.length !== 10) return toast.error('Enter valid 10-digit mobile')
+    try {
+      setAuthLoading(true)
+      const res = await Axios({ ...SummaryApi.sendLoginOtp, data: { mobile } })
+      if (res.data.success) {
+        toast.success('OTP sent to your mobile')
+        setOtpSent(true)
+      }
+    } catch (err) { AxiosToastError(err) }
+    finally { setAuthLoading(false) }
+  }
+
+  const handleVerifyOtp = async () => {
+    if (otp.length < 4) return toast.error('Enter OTP')
+    try {
+      setAuthLoading(true)
+      const res = await Axios({ ...SummaryApi.verifyLoginOtp, data: { mobile, otp } })
+      if (res.data.success) {
+        const d = res.data.data
+        localStorage.setItem('accessToken', d.accessToken)
+        localStorage.setItem('refreshToken', d.refreshToken)
+        localStorage.setItem('user', JSON.stringify(d))
+        dispatch(setUserDetails(d))
+        toast.success('Login successful')
+        await syncGuestCart()
+      }
+    } catch (err) { AxiosToastError(err) }
+    finally { setAuthLoading(false) }
+  }
 
   const handleCOD = async () => {
     try {
@@ -42,6 +95,40 @@ const CheckoutPage = () => {
       fetchCartItem?.()
       fetchOrder?.()
     } catch (err) { AxiosToastError(err) }
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div className='bg-gray-50 min-h-screen flex items-center justify-center p-4'>
+        <div className='bg-white max-w-sm w-full rounded-2xl p-6 shadow-sm border border-gray-100'>
+          <h2 className='text-xl font-bold text-gray-800 text-center mb-2'>Login to Checkout</h2>
+          <p className='text-sm text-gray-500 text-center mb-6'>Enter your mobile to receive OTP</p>
+          {!otpSent ? (
+            <div className='grid gap-4'>
+              <input type='tel' maxLength={10} value={mobile} onChange={e => setMobile(e.target.value.replace(/\D/g, ''))}
+                placeholder='10-digit mobile number'
+                className='w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-primary' />
+              <button onClick={handleSendOtp} disabled={authLoading || mobile.length !== 10}
+                className='w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-dark transition-colors text-sm disabled:opacity-50'>
+                {authLoading ? 'Sending...' : 'Send OTP'}
+              </button>
+            </div>
+          ) : (
+            <div className='grid gap-4'>
+              <p className='text-sm text-gray-500 text-center'>OTP sent to <span className='font-semibold text-gray-800'>{mobile}</span></p>
+              <input type='text' maxLength={4} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
+                placeholder='Enter 4-digit OTP'
+                className='w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-primary text-center text-lg tracking-widest' />
+              <button onClick={handleVerifyOtp} disabled={authLoading || otp.length < 4}
+                className='w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-dark transition-colors text-sm disabled:opacity-50'>
+                {authLoading ? 'Verifying...' : 'Verify & Login'}
+              </button>
+              <button onClick={() => { setOtpSent(false); setOtp('') }} className='text-xs text-gray-400 hover:text-gray-600 text-center'>Change mobile number</button>
+            </div>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (

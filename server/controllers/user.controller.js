@@ -298,7 +298,149 @@ export async function updateUserDetails(request, response) {
     }
 }
 
-// --- 8. Forgot Password Controller ---
+// --- 8. Send Login OTP (Mobile OTP Login) ---
+export async function sendLoginOtpController(request, response) {
+    try {
+        const { mobile } = request.body;
+
+        if (!mobile || mobile.length !== 10) {
+            return response.status(400).json({
+                message: "Provide a valid 10-digit mobile number",
+                error: true,
+                success: false
+            });
+        }
+
+        let user = await UserModel.findOne({ mobile });
+
+        if (!user) {
+            const genName = "User" + mobile.slice(-4);
+            const genEmail = mobile + "@qr.guest";
+            const dummyPassword = await bcryptjs.hash(mobile + process.env.SECRET_KEY_ACCESS_TOKEN, 10);
+
+            user = await UserModel.create({
+                name: genName,
+                email: genEmail,
+                mobile: mobile,
+                password: dummyPassword,
+                verify_email: true
+            });
+        }
+
+        const otp = Math.floor(1000 + Math.random() * 9000);
+        const expireTime = new Date(Date.now() + 5 * 60 * 1000);
+
+        await UserModel.findByIdAndUpdate(user._id, {
+            login_otp: String(otp),
+            login_otp_expiry: expireTime
+        });
+
+        console.log(`[LOGIN OTP] ${mobile} → ${otp}`);
+
+        return response.json({
+            message: "OTP sent to your mobile",
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
+
+// --- 9. Verify Login OTP ---
+export async function verifyLoginOtpController(request, response) {
+    try {
+        const { mobile, otp } = request.body;
+
+        if (!mobile || !otp) {
+            return response.status(400).json({
+                message: "Provide mobile and otp",
+                error: true,
+                success: false
+            });
+        }
+
+        const user = await UserModel.findOne({ mobile });
+
+        if (!user) {
+            return response.status(400).json({
+                message: "User not found",
+                error: true,
+                success: false
+            });
+        }
+
+        if (!user.login_otp || !user.login_otp_expiry) {
+            return response.status(400).json({
+                message: "No OTP requested. Please request OTP first.",
+                error: true,
+                success: false
+            });
+        }
+
+        if (new Date() > new Date(user.login_otp_expiry)) {
+            return response.status(400).json({
+                message: "OTP has expired",
+                error: true,
+                success: false
+            });
+        }
+
+        if (otp !== user.login_otp) {
+            return response.status(400).json({
+                message: "Invalid OTP",
+                error: true,
+                success: false
+            });
+        }
+
+        await UserModel.findByIdAndUpdate(user._id, {
+            login_otp: null,
+            login_otp_expiry: null,
+            last_login_date: new Date()
+        });
+
+        const accessToken = await generateAccessToken(user._id);
+        const refreshToken = await generateRefreshToken(user._id);
+
+        const cookieOption = {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None"
+        };
+
+        response.cookie("accessToken", accessToken, cookieOption);
+        response.cookie("refreshToken", refreshToken, cookieOption);
+
+        return response.json({
+            message: "Login successful",
+            error: false,
+            success: true,
+            data: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                mobile: user.mobile,
+                accessToken,
+                refreshToken
+            }
+        });
+
+    } catch (error) {
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
+
+// --- 10. Forgot Password Controller ---
 export async function forgotPasswordController(request, response) {
     try {
         const { email } = request.body;
@@ -344,7 +486,7 @@ export async function forgotPasswordController(request, response) {
     }
 }
 
-// --- 9. Verify Forgot Password OTP ---
+// --- 11. Verify Forgot Password OTP ---
 export async function verifyForgotPasswordOtp(request, response) {
     try {
         const { email, otp } = request.body;
@@ -400,7 +542,7 @@ export async function verifyForgotPasswordOtp(request, response) {
     }
 }
 
-// --- 10. Reset Password ---
+// --- 12. Reset Password ---
 export async function resetPassword(request, response) {
     try {
         const { email, newPassword, confirmPassword } = request.body;
@@ -455,7 +597,7 @@ export async function resetPassword(request, response) {
     }
 }
 
-// --- 11. Refresh Token ---
+// --- 13. Refresh Token ---
 export async function refreshToken(request, response) {
     try {
         const refreshToken = request.cookies?.refreshToken || request?.headers?.authorization?.split(" ")[1];
