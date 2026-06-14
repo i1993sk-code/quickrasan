@@ -1,5 +1,5 @@
 import sendEmail from "../config/sendEmail.js";
-import { sendOtpSms } from "../config/sendSms.js";
+import { sendOtp, verifyOtp } from "../config/sendSms.js";
 import UserModel from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import verifyEmailTemplate from '../utils/verifyEmailTemplate.js';
@@ -328,20 +328,26 @@ export async function sendLoginOtpController(request, response) {
             });
         }
 
-        const otp = Math.floor(1000 + Math.random() * 9000);
-        const expireTime = new Date(Date.now() + 5 * 60 * 1000);
+        const result = await sendOtp(mobile);
+
+        if (!result || !result.requestId) {
+            return response.status(500).json({
+                message: "Failed to send OTP. Please try again.",
+                error: true,
+                success: false
+            });
+        }
 
         await UserModel.findByIdAndUpdate(user._id, {
-            login_otp: String(otp),
-            login_otp_expiry: expireTime
+            login_otp: result.requestId,
+            login_otp_expiry: result.expiresAt
         });
-
-        await sendOtpSms(mobile, otp);
 
         return response.json({
             message: "OTP sent to your mobile",
             error: false,
-            success: true
+            success: true,
+            data: { requestId: result.requestId }
         });
 
     } catch (error) {
@@ -376,7 +382,7 @@ export async function verifyLoginOtpController(request, response) {
             });
         }
 
-        if (!user.login_otp || !user.login_otp_expiry) {
+        if (!user.login_otp) {
             return response.status(400).json({
                 message: "No OTP requested. Please request OTP first.",
                 error: true,
@@ -384,7 +390,7 @@ export async function verifyLoginOtpController(request, response) {
             });
         }
 
-        if (new Date() > new Date(user.login_otp_expiry)) {
+        if (user.login_otp_expiry && new Date() > new Date(user.login_otp_expiry)) {
             return response.status(400).json({
                 message: "OTP has expired",
                 error: true,
@@ -392,7 +398,9 @@ export async function verifyLoginOtpController(request, response) {
             });
         }
 
-        if (otp !== user.login_otp) {
+        const result = await verifyOtp(user.login_otp, otp);
+
+        if (!result || !result.verified) {
             return response.status(400).json({
                 message: "Invalid OTP",
                 error: true,

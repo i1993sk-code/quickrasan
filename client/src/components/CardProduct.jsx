@@ -9,28 +9,43 @@ import Axios from '../utils/Axios'
 import toast from 'react-hot-toast'
 import { useGlobalContext } from '../Provider/GlobalProvider'
 import { useSelector } from 'react-redux'
-import { FaMinus, FaPlus, FaBolt } from "react-icons/fa6";
+import { FaMinus, FaPlus, FaBolt } from "react-icons/fa6"
+import { addToGuestCart, isInGuestCart, getGuestCartQty, updateGuestCartQty, removeFromGuestCart } from '../utils/guestCart'
 
 const CardProduct = ({ data }) => {
   const url = `/product/${validURLConvert(data.name)}-${data._id}`
   const { fetchCartItem, updateCartItem, deleteCartItem } = useGlobalContext()
   const [loading, setLoading] = useState(false)
   const cartItem = useSelector(state => state.cartItem.cart)
+  const user = useSelector(state => state.user)
+  const isLoggedIn = user?._id
   const [isInCart, setIsInCart] = useState(false)
   const [qty, setQty] = useState(0)
   const [cartId, setCartId] = useState(null)
   const discounted = pricewithDiscount(data.price, data.discount)
 
   useEffect(() => {
+    if (!isLoggedIn) {
+      setIsInCart(isInGuestCart(data._id))
+      setQty(getGuestCartQty(data._id))
+      return
+    }
     const item = cartItem.find(item => item.productId._id === data._id)
     setIsInCart(!!item)
     setQty(item?.quantity || 0)
     setCartId(item?._id || null)
-  }, [data._id, cartItem])
+  }, [data._id, cartItem, isLoggedIn])
 
   const handleAdd = async (e) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!isLoggedIn) {
+      addToGuestCart(data._id)
+      setIsInCart(true)
+      setQty(1)
+      toast.success("Added to cart")
+      return
+    }
     try {
       setLoading(true)
       const res = await Axios({ ...SummaryApi.addTocart, data: { productId: data._id } })
@@ -48,6 +63,12 @@ const CardProduct = ({ data }) => {
   const incQty = async (e) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!isLoggedIn) {
+      const items = updateGuestCartQty(data._id, qty + 1)
+      setQty(items.find(i => i.productId === data._id)?.quantity || 0)
+      toast.success("Item added")
+      return
+    }
     const res = await updateCartItem(cartId, qty + 1)
     if (res?.success) toast.success("Item added")
   }
@@ -55,6 +76,17 @@ const CardProduct = ({ data }) => {
   const decQty = async (e) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!isLoggedIn) {
+      if (qty === 1) {
+        removeFromGuestCart(data._id)
+        setIsInCart(false)
+        setQty(0)
+      } else {
+        const items = updateGuestCartQty(data._id, qty - 1)
+        setQty(items.find(i => i.productId === data._id)?.quantity || 0)
+      }
+      return
+    }
     if (qty === 1) {
       deleteCartItem(cartId)
     } else {
