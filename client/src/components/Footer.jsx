@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
 import { FaHeart, FaStore, FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa6";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { Link, useNavigate } from 'react-router-dom';
 
 const Footer = () => {
   const [showGhost, setShowGhost] = useState(false)
+  const [showPin, setShowPin] = useState(false)
+  const [pinValue, setPinValue] = useState('')
   const navigate = useNavigate()
   const [logoClickCount, setLogoClickCount] = useState(0)
 
@@ -69,9 +72,12 @@ const Footer = () => {
               <h3 className='font-bold text-gray-800'>Owner Access</h3>
               <p className='text-xs text-gray-400 mt-1'>Enter master PIN</p>
             </div>
-            <input type='password' id='ghostPass' placeholder='••••••••' className='w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary mb-3' autoFocus />
+            <div className='flex items-center border border-gray-200 rounded-xl px-3 mb-3 focus-within:border-primary'>
+              <input type={showPin ? "text" : "password"} value={pinValue} onChange={e => setPinValue(e.target.value)} placeholder='••••••••' className='w-full py-2.5 text-sm outline-none' autoFocus />
+              <button type='button' onClick={() => setShowPin(p => !p)} className='text-gray-400 hover:text-gray-600 shrink-0'>{showPin ? <FaRegEye /> : <FaRegEyeSlash />}</button>
+            </div>
             <button onClick={() => {
-              const val = document.getElementById('ghostPass').value
+              const val = pinValue
               if (val === 'newsetu@2024') {
                 setShowGhost(false)
                 navigate('/login', { state: { ghost: true } })

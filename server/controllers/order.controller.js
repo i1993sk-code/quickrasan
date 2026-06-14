@@ -1,4 +1,4 @@
-import StripeInstance from "../config/stripe.js";
+import StripeInstance from "../config/Stripe.js";
 import CartProductModel from "../models/cartproduct.model.js";
 import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
