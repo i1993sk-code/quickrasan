@@ -8,6 +8,7 @@ import { logout } from '../store/userSlice'
 import toast from 'react-hot-toast'
 import AxiosToastError from '../utils/AxiosToastError'
 import { HiOutlineExternalLink } from "react-icons/hi";
+import { FaStore } from "react-icons/fa";
 import isAdmin from '../utils/isAdmin'
 
 const UserMenu = ({close}) => {
@@ -87,6 +88,17 @@ const UserMenu = ({close}) => {
             {
               isAdmin(user.role) && (
                 <Link onClick={handleClose} to={"/dashboard/partners"} className='px-2 hover:bg-orange-200 py-1'>Partners</Link>
+              )
+            }
+
+            {
+              !isAdmin(user.role) && (
+                <>
+                  <Link onClick={handleClose} to={"/become-partner"} className='px-2 hover:bg-orange-200 py-1 flex items-center gap-2 text-emerald-700'>
+                    <FaStore size={14} />
+                    <span>Become a Partner</span>
+                  </Link>
+                </>
               )
             }
 
