@@ -17,6 +17,7 @@ import subCategoryRouter from "./routes/subCategory.route.js";
 import partnerRouter from "./routes/partner.route.js";
 import orderRouter from "./routes/order.route.js";
 import addressRouter from "./routes/address.route.js";
+import uploadRouter from "./routes/upload.route.js";
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.use("/api/subcategory", subCategoryRouter);
 app.use("/api/partner", partnerRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/address", addressRouter);
+app.use("/api/file", uploadRouter);
 
 app.get("/", (req, res) => {
     res.json({ message: "QuickRasan Server is alive!" });
