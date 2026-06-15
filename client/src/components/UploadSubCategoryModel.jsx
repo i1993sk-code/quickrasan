@@ -15,6 +15,13 @@ const UploadSubCategoryModel = ({close, fetchData}) => {
         category : []
     })
     const allCategory = useSelector(state => state.product.allCategory)
+    const [imageUrl,setImageUrl] = useState("")
+
+    const handleImageUrl = () => {
+        if (!imageUrl) return toast.error("Paste an image URL")
+        setSubCategoryData(p => ({ ...p, image: imageUrl }))
+        setImageUrl("")
+    }
 
     const handleChange = (e)=>{
         const { name, value} = e.target 
@@ -133,7 +140,10 @@ const UploadSubCategoryModel = ({close, fetchData}) => {
                                     onChange={handleUploadSubCategoryImage}
                                 />
                             </label>
-                            
+                            <div className='flex gap-2 items-center'>
+                                <input type='text' value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder='Or paste image URL' className='border p-2 rounded text-sm w-48 outline-none' />
+                                <button type='button' onClick={handleImageUrl} className='px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600'>Set URL</button>
+                            </div>
                         </div>
                     </div>
                     <div className='grid gap-1'>

@@ -12,6 +12,13 @@ const UploadCategoryModel = ({close, fetchData}) => {
         image : ""
     })
     const [loading,setLoading] = useState(false)
+    const [imageUrl,setImageUrl] = useState("")
+
+    const handleImageUrl = () => {
+        if (!imageUrl) return toast.error("Paste an image URL")
+        setData(p => ({ ...p, image: imageUrl }))
+        setImageUrl("")
+    }
 
     const handleOnChange = (e)=>{
         const { name, value} = e.target
@@ -116,7 +123,10 @@ const UploadCategoryModel = ({close, fetchData}) => {
 
                             <input disabled={!data.name} onChange={handleUploadCategoryImage} type='file' id='uploadCategoryImage' className='hidden'/>
                         </label>
-                        
+                        <div className='flex gap-2 items-center'>
+                            <input type='text' value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder='Or paste image URL' className='border p-2 rounded text-sm w-48 outline-none' />
+                            <button type='button' onClick={handleImageUrl} className='px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600'>Set URL</button>
+                        </div>
                     </div>
                 </div>
 

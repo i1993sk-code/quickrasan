@@ -36,7 +36,13 @@ const UploadProduct = () => {
 
   const [openAddField,setOpenAddField] = useState(false)
   const [fieldName,setFieldName] = useState("")
+  const [imageUrl,setImageUrl] = useState("")
 
+  const handleImageUrl = () => {
+      if (!imageUrl) return toast.error("Paste an image URL")
+      setData(p => ({ ...p, image: [...p.image, imageUrl] }))
+      setImageUrl("")
+  }
 
   const handleChange = (e)=>{
     const { name, value} = e.target 
@@ -210,6 +216,10 @@ const UploadProduct = () => {
                             onChange={handleUploadImage}
                           />
                       </label>
+                      <div className='flex gap-2 items-center mt-2'>
+                          <input type='text' value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder='Or paste image URL' className='border p-2 rounded text-sm w-48 outline-none' />
+                          <button type='button' onClick={handleImageUrl} className='px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600'>Add URL</button>
+                      </div>
                       {/**display uploded image*/}
                       <div className='flex flex-wrap gap-4'>
                         {
