@@ -8,7 +8,7 @@ const uploadImageController = async(request,response)=>{
 
         return response.json({
             message : "Upload done",
-            data : uploadImage,
+            url : uploadImage.secure_url || uploadImage.url,
             success : true,
             error : false
         })
