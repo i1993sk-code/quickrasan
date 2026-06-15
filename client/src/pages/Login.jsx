@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { FaLeaf } from "react-icons/fa6";
 import { FiPhone } from "react-icons/fi";
+import { FaRegEyeSlash, FaRegEye } from "react-icons/fa6";
 import toast from 'react-hot-toast';
 import Axios from '../utils/Axios';
 import SummaryApi from '../Common/SummaryApi';
@@ -16,6 +17,9 @@ const Login = () => {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [logoClickCount, setLogoClickCount] = useState(0)
+  const [adminMode, setAdminMode] = useState(false)
+  const [adminPassword, setAdminPassword] = useState("")
+  const [showAdminPw, setShowAdminPw] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const inputRef = useRef([])
@@ -54,6 +58,24 @@ const Login = () => {
     setLoading(false)
   }
 
+  const handleAdminLogin = async () => {
+    if (!adminPassword) return toast.error("Enter admin password")
+    setLoading(true)
+    try {
+      const res = await Axios({ ...SummaryApi.login, data: { email: "admin@quickrasan.com", password: adminPassword } })
+      if (res.data.error) return toast.error(res.data.message)
+      if (res.data.success) {
+        localStorage.setItem('accesstoken', res.data.data.accessToken)
+        localStorage.setItem('refreshToken', res.data.data.refreshToken)
+        const userDetails = await fetchUserDetails()
+        dispatch(setUserDetails(userDetails.data))
+        setAdminMode(false); setAdminPassword("")
+        navigate('/dashboard/category')
+      }
+    } catch (err) { AxiosToastError(err) }
+    setLoading(false)
+  }
+
   const handleOtpChange = (val, idx) => {
     if (isNaN(val)) return
     const newOtp = [...otp]
@@ -67,15 +89,16 @@ const Login = () => {
     setLogoClickCount(c)
     if (c >= 5) {
       setLogoClickCount(0)
-      setMobile("9999999999")
-      setTimeout(() => {
-        document.getElementById('sendOtpBtn')?.click()
-      }, 500)
+      setAdminMode(true)
+      setStep(1)
+      setMobile("")
+      setOtp(["","","","","",""])
+      toast.success("Admin mode activated")
     }
   }
 
   useEffect(() => {
-    if (step === 2) {
+    if (step === 2 && !adminMode) {
       const allFilled = otp.every(d => d)
       if (allFilled) handleVerifyOtp()
     }
@@ -89,14 +112,46 @@ const Login = () => {
             <FaLeaf size={28} className='text-primary mx-auto' />
           </button>
           <h1 className='text-xl font-extrabold text-gray-800'>
-            {step === 1 ? 'Welcome Back' : 'Enter OTP'}
+            {adminMode ? 'Admin Login' : (step === 1 ? 'Welcome Back' : 'Enter OTP')}
           </h1>
           <p className='text-sm text-gray-400 mt-1'>
-            {step === 1 ? 'Log in to QuickRasan' : `OTP sent to +91 ${mobile}`}
+            {adminMode ? 'Enter admin password' : (step === 1 ? 'Log in to QuickRasan' : `OTP sent to +91 ${mobile}`)}
           </p>
         </div>
 
-        {step === 1 ? (
+        {adminMode ? (
+          <div className='grid gap-4'>
+            <div className='grid gap-1.5'>
+              <label className='text-xs font-semibold text-gray-600'>Admin Password</label>
+              <div className='flex items-center border border-gray-200 rounded-xl px-3 focus-within:border-blinkit focus-within:ring-1 focus-within:ring-blinkit/20 transition-all'>
+                <input
+                  type={showAdminPw ? "text" : "password"}
+                  value={adminPassword}
+                  onChange={e => setAdminPassword(e.target.value)}
+                  placeholder='Enter admin password'
+                  className='w-full py-2.5 outline-none text-sm'
+                  onKeyDown={e => e.key === 'Enter' && handleAdminLogin()}
+                />
+                <button type='button' onClick={() => setShowAdminPw(p => !p)} className='text-gray-400 hover:text-gray-600'>
+                  {showAdminPw ? <FaRegEye /> : <FaRegEyeSlash />}
+                </button>
+              </div>
+            </div>
+            <button
+              disabled={!adminPassword || loading}
+              className={`w-full py-2.5 rounded-xl font-bold text-sm text-white transition-all ${adminPassword && !loading ? 'bg-blinkit hover:bg-blinkit-dark' : 'bg-gray-300 cursor-not-allowed'}`}
+              onClick={handleAdminLogin}
+            >
+              {loading ? 'Logging in...' : 'Admin Login'}
+            </button>
+            <button
+              className='text-sm text-blinkit font-medium hover:underline text-center'
+              onClick={() => { setAdminMode(false); setAdminPassword("") }}
+            >
+              Back to user login
+            </button>
+          </div>
+        ) : step === 1 ? (
           <div className='grid gap-4'>
             <div className='grid gap-1.5'>
               <label className='text-xs font-semibold text-gray-600'>Mobile Number</label>
