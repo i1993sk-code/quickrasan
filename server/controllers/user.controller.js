@@ -8,68 +8,9 @@ import generateRefreshToken from "../utils/generateRefreshToken.js";
 import uploadImageCloudinary from "../utils/uploadImageCloudinary.js";
 import forgotPasswordTemplate from "../utils/forgotPasswordTemplate.js";
 import generateOtp from "../utils/generateOtp.js";
-import https from 'https'
-
-const STARTMESSAGING_API_KEY = process.env.STARTMESSAGING_API_KEY
-const BASE_URL = 'api.startmessaging.com'
-
-const smsRequest = (method, path, body) => {
-  return new Promise((resolve, reject) => {
-    const data = body ? JSON.stringify(body) : ''
-    const options = {
-      hostname: BASE_URL,
-      path,
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': STARTMESSAGING_API_KEY,
-        ...(data ? { 'Content-Length': Buffer.byteLength(data) } : {}),
-      },
-    }
-    const req = https.request(options, (res) => {
-      let chunks = ''
-      res.on('data', (chunk) => (chunks += chunk))
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(chunks)
-          if (res.statusCode >= 400) {
-            reject(new Error(parsed.message || `HTTP ${res.statusCode}`))
-          } else {
-            resolve(parsed.data)
-          }
-        } catch {
-          reject(new Error(chunks))
-        }
-      })
-    })
-    req.on('error', reject)
-    if (data) req.write(data)
-    req.end()
-  })
-}
-
-const sendOtp = async (mobile) => {
-  try {
-    const phoneNumber = mobile.startsWith('+91')
-      ? `+91${mobile.replace(/^\+91/, '')}`
-      : `+91${mobile}`
-    const result = await smsRequest('POST', '/otp/send', { phoneNumber })
-    return result
-  } catch (error) {
-    console.error('[SMS ERROR]', error.message)
-    return null
-  }
-}
-
-const verifyOtp = async (requestId, otpCode) => {
-  try {
-    const result = await smsRequest('POST', '/otp/verify', { requestId, otpCode })
-    return result
-  } catch (error) {
-    console.error('[OTP VERIFY ERROR]', error.message)
-    return { verified: false }
-  }
-}
+import OtpModel from "../models/otp.model.js";
+import sendSMSStartMessaging from "../utils/sendSMSStartMessaging.js";
+import crypto from "crypto";
 
 // --- 1. Register User ---
 export async function registerUserController(req, res) {
@@ -374,49 +315,26 @@ export async function sendLoginOtpController(request, response) {
             });
         }
 
-        let user = await UserModel.findOne({ mobile });
+        const otp = crypto.randomInt(1000, 9999).toString();
+        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-        if (!user) {
-            const genName = "User" + mobile.slice(-4);
-            const genEmail = mobile + "@qr.guest";
-            const dummyPassword = await bcryptjs.hash(mobile + process.env.SECRET_KEY_ACCESS_TOKEN, 10);
+        await OtpModel.deleteMany({ mobile });
+        await new OtpModel({ mobile, otp, expiry: otpExpiry }).save();
 
-            user = await UserModel.create({
-                name: genName,
-                email: genEmail,
-                mobile: mobile,
-                password: dummyPassword,
-                verify_email: true
+        const smsResult = await sendSMSStartMessaging(mobile, otp);
+        if (!smsResult.success) {
+            return response.status(500).json({
+                message: "OTP bhejne mein problem hui. Dobara try karein.",
+                error: true, success: false
             });
         }
 
-        const result = await sendOtp(mobile);
-
-        if (!result || !result.requestId) {
-            const devOtp = mobile === "9999999999" ? "0000" : generateOtp();
-            const expiry = new Date(Date.now() + 5 * 60 * 1000);
-            await UserModel.findByIdAndUpdate(user._id, {
-                login_otp: String(devOtp),
-                login_otp_expiry: expiry
-            });
-            console.log(`📱 Dev OTP for ${mobile}: ${devOtp}`);
-            return response.json({
-                message: "OTP sent to your mobile",
-                error: false,
-                success: true,
-            });
-        }
-
-        await UserModel.findByIdAndUpdate(user._id, {
-            login_otp: result.requestId,
-            login_otp_expiry: result.expiresAt
-        });
+        console.log(`📱 OTP for ${mobile}: ${otp}`);
 
         return response.json({
             message: "OTP sent to your mobile",
-            error: false,
-            success: true,
-            data: { requestId: result.requestId }
+            error: false, success: true,
+            data: { mobile }
         });
 
     } catch (error) {
@@ -441,45 +359,52 @@ export async function verifyLoginOtpController(request, response) {
             });
         }
 
-        const user = await UserModel.findOne({ mobile });
+        const otpRecord = await OtpModel.findOne({ mobile });
 
-        if (!user) {
+        if (!otpRecord) {
             return response.status(400).json({
-                message: "User not found",
-                error: true,
-                success: false
-            });
-        }
-
-        if (!user.login_otp) {
-            return response.status(400).json({
-                message: "No OTP requested. Please request OTP first.",
+                message: "No OTP requested. Send OTP first.",
                 error: true, success: false
             });
         }
 
-        if (user.login_otp_expiry && new Date() > new Date(user.login_otp_expiry)) {
+        if (new Date(otpRecord.expiry) < new Date()) {
+            await OtpModel.deleteOne({ _id: otpRecord._id });
             return response.status(400).json({
                 message: "OTP has expired",
                 error: true, success: false
             });
         }
 
-        const isDevOtp = /^\d{4,6}$/.test(user.login_otp);
-        const isValid = isDevOtp
-            ? user.login_otp === otp
-            : (await verifyOtp(user.login_otp, otp))?.verified;
-        if (!isValid) {
+        if (otpRecord.otp !== otp) {
             return response.status(400).json({
                 message: "Invalid OTP",
                 error: true, success: false
             });
         }
 
-        user.login_otp = null;
-        user.login_otp_expiry = null;
-        user.last_login_date = new Date();
-        await user.save();
+        await OtpModel.deleteOne({ _id: otpRecord._id });
+
+        let user = await UserModel.findOne({ mobile });
+
+        if (!user) {
+            const genName = "User" + mobile.slice(-4);
+            const genEmail = mobile + "@qr.guest";
+            const dummyPassword = await bcryptjs.hash(mobile + process.env.SECRET_KEY_ACCESS_TOKEN, 10);
+
+            user = await UserModel.create({
+                name: genName,
+                email: genEmail,
+                mobile: mobile,
+                password: dummyPassword,
+                verify_email: true,
+                role: "USER",
+                status: "Active"
+            });
+        } else {
+            user.last_login_date = new Date();
+            await user.save();
+        }
 
         const accessToken = await generateAccessToken(user._id);
         const refreshToken = await generateRefreshToken(user._id);
