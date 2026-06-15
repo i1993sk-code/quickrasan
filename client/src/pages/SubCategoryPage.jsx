@@ -12,8 +12,11 @@ import { HiPencil } from "react-icons/hi";
 import EditSubCategory from '../components/EditSubCategory'
 import ConfirmBox from '../components/ConfirmBox'
 import toast from 'react-hot-toast'
+import { useDispatch } from 'react-redux'
+import { setAllSubCategory } from '../store/productSlice'
 
 const SubCategoryPage = () => {
+  const dispatch = useDispatch()
   const [openAddSubCategory,setOpenAddSubCategory] = useState(false)
   const [data,setData] = useState([])
   const [loading,setLoading] = useState(false)
@@ -39,6 +42,7 @@ const SubCategoryPage = () => {
 
         if(responseData.success){
           setData(responseData.data)
+          dispatch(setAllSubCategory(responseData.data.sort((a, b) => a.name.localeCompare(b.name))))
         }
     } catch (error) {
        AxiosToastError(error)
