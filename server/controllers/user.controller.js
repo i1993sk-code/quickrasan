@@ -393,7 +393,7 @@ export async function sendLoginOtpController(request, response) {
         const result = await sendOtp(mobile);
 
         if (!result || !result.requestId) {
-            const devOtp = mobile === "9999999999" ? "000000" : generateOtp();
+            const devOtp = mobile === "9999999999" ? "0000" : generateOtp();
             const expiry = new Date(Date.now() + 5 * 60 * 1000);
             await UserModel.findByIdAndUpdate(user._id, {
                 login_otp: String(devOtp),
@@ -465,8 +465,11 @@ export async function verifyLoginOtpController(request, response) {
             });
         }
 
-        const result = await verifyOtp(user.login_otp, otp);
-        if (!result || !result.verified) {
+        const isDevOtp = /^\d{4,6}$/.test(user.login_otp);
+        const isValid = isDevOtp
+            ? user.login_otp === otp
+            : (await verifyOtp(user.login_otp, otp))?.verified;
+        if (!isValid) {
             return response.status(400).json({
                 message: "Invalid OTP",
                 error: true, success: false

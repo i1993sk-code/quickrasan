@@ -1,6 +1,5 @@
 const generateOtp = () => {
-    // 6 digit ka random number
-    return Math.floor(Math.random() * 900000) + 100000; 
+    return Math.floor(Math.random() * 9000) + 1000; 
 };
 
 export default generateOtp;

