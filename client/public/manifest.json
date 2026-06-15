@@ -1,7 +1,7 @@
 {
-  "name": "QuickRasan",
+  "name": "QuickRasan - Fast Grocery Delivery",
   "short_name": "QuickRasan",
-  "description": "Jharkhand ki Sabse Fast Grocery Delivery",
+  "description": "Order groceries online in Ara, Bihar. 10 minute delivery of fresh fruits, vegetables & daily essentials.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
