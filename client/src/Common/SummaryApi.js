@@ -42,14 +42,6 @@ const SummaryApi = {
         url : "/api/user/logout",
         method : 'get'
     },
-    sendLoginOtp : {
-        url : '/api/user/send-login-otp',
-        method : 'post'
-    },
-    verifyLoginOtp : {
-        url : '/api/user/verify-login-otp',
-        method : 'post'
-    },
     uploadAvatar : {
         url : "/api/user/upload-avatar",
         method : 'put'

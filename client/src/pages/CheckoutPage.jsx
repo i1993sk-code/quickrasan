@@ -44,7 +44,7 @@ const CheckoutPage = () => {
     if (mobile.length !== 10) return toast.error('Enter valid 10-digit mobile')
     try {
       setAuthLoading(true)
-      const res = await Axios({ ...SummaryApi.sendLoginOtp, data: { mobile } })
+      const res = await Axios({ ...SummaryApi.sendOtp, data: { mobile } })
       if (res.data.success) {
         toast.success('OTP sent to your mobile')
         setOtpSent(true)
@@ -57,7 +57,7 @@ const CheckoutPage = () => {
     if (otp.length < 4) return toast.error('Enter OTP')
     try {
       setAuthLoading(true)
-      const res = await Axios({ ...SummaryApi.verifyLoginOtp, data: { mobile, otp } })
+      const res = await Axios({ ...SummaryApi.verifyOtp, data: { mobile, otp } })
       if (res.data.success) {
         const d = res.data.data
         localStorage.setItem('accessToken', d.accessToken)

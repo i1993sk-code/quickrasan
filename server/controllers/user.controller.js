@@ -10,7 +10,7 @@ import forgotPasswordTemplate from "../utils/forgotPasswordTemplate.js";
 import generateOtp from "../utils/generateOtp.js";
 import https from 'https'
 
-const STARTMESSAGING_API_KEY = process.env.STARTMESSAGING_API_KEY || 'sm_live_dd064509c77c75f7fbc5b5d7c84bc819c06caa07'
+const STARTMESSAGING_API_KEY = process.env.STARTMESSAGING_API_KEY
 const BASE_URL = 'api.startmessaging.com'
 
 const smsRequest = (method, path, body) => {
@@ -396,15 +396,14 @@ export async function sendLoginOtpController(request, response) {
             const devOtp = mobile === "9999999999" ? "000000" : generateOtp();
             const expiry = new Date(Date.now() + 5 * 60 * 1000);
             await UserModel.findByIdAndUpdate(user._id, {
-                forgot_password_otp: String(devOtp),
-                forgot_password_expiry: expiry
+                login_otp: String(devOtp),
+                login_otp_expiry: expiry
             });
             console.log(`📱 Dev OTP for ${mobile}: ${devOtp}`);
             return response.json({
                 message: "OTP sent to your mobile",
                 error: false,
                 success: true,
-                data: { devOtp }
             });
         }
 
@@ -452,45 +451,30 @@ export async function verifyLoginOtpController(request, response) {
             });
         }
 
-        if (user.forgot_password_otp) {
-            if (user.forgot_password_expiry && new Date() > new Date(user.forgot_password_expiry)) {
-                return response.status(400).json({
-                    message: "OTP has expired",
-                    error: true, success: false
-                });
-            }
-            if (String(user.forgot_password_otp) !== String(otp)) {
-                return response.status(400).json({
-                    message: "Invalid OTP",
-                    error: true, success: false
-                });
-            }
-            user.forgot_password_otp = null;
-            user.forgot_password_expiry = null;
-        } else {
-            if (!user.login_otp) {
-                return response.status(400).json({
-                    message: "No OTP requested. Please request OTP first.",
-                    error: true, success: false
-                });
-            }
-            if (user.login_otp_expiry && new Date() > new Date(user.login_otp_expiry)) {
-                return response.status(400).json({
-                    message: "OTP has expired",
-                    error: true, success: false
-                });
-            }
-            const result = await verifyOtp(user.login_otp, otp);
-            if (!result || !result.verified) {
-                return response.status(400).json({
-                    message: "Invalid OTP",
-                    error: true, success: false
-                });
-            }
-            user.login_otp = null;
-            user.login_otp_expiry = null;
+        if (!user.login_otp) {
+            return response.status(400).json({
+                message: "No OTP requested. Please request OTP first.",
+                error: true, success: false
+            });
         }
 
+        if (user.login_otp_expiry && new Date() > new Date(user.login_otp_expiry)) {
+            return response.status(400).json({
+                message: "OTP has expired",
+                error: true, success: false
+            });
+        }
+
+        const result = await verifyOtp(user.login_otp, otp);
+        if (!result || !result.verified) {
+            return response.status(400).json({
+                message: "Invalid OTP",
+                error: true, success: false
+            });
+        }
+
+        user.login_otp = null;
+        user.login_otp_expiry = null;
         user.last_login_date = new Date();
         await user.save();
 

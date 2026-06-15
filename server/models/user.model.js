@@ -23,25 +23,8 @@ const userSchema = new mongoose.Schema({
 
     mobile: {
         type: String,
-        required: [true, "provide mobile"],
-        unique: true,
+        default: null,
     },
-
-    password:{
-        type:String,
-        required:[true,"provide password"]
-    },
-
-    avatar:{
-        type:String,
-        default:""
-    },
-
-  mobile: {
-    type: String,
-    required: false, // Taaki abhi login/register bina error ke ho jaye
-    default: null,   // Khali value ke liye
-},
 
     refresh_token:{
         type:String,

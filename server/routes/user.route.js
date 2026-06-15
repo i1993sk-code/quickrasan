@@ -28,10 +28,6 @@ userRouter.post("/verify-otp", verifyLoginOtpController);
 userRouter.get("/logout", auth, logoutController);
 userRouter.post("/refresh-token", refreshToken); 
 
-// --- Mobile OTP Login Routes ---
-userRouter.post("/send-login-otp", sendLoginOtpController);
-userRouter.post("/verify-login-otp", verifyLoginOtpController);
-
 // --- Password Management Routes ---
 userRouter.put("/forgot-password", forgotPasswordController);
 userRouter.put("/verify-forgot-password-otp", verifyForgotPasswordOtp);
