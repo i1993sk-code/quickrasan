@@ -11,11 +11,12 @@ const uploadImageCloudinary = async(image)=>{
       
       const uploadImage = await new Promise((resolve,reject)=>{
             cloudinary.uploader.upload_stream({
-              folder: "fullstack",
+              folder: "quickrasan",
               format: 'webp',
               transformation: [{ quality: 'auto', fetch_format: 'auto' }]
             },(error,uploadResult)=>{
-                return resolve(uploadResult)
+                if (error) return reject(error)
+                resolve(uploadResult)
             }).end(buffer)
       })
 
