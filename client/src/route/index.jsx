@@ -3,10 +3,6 @@ import App from "../App";
 import Home from "../pages/Home";
 import SearchPage from "../pages/SearchPage";
 import Login from "../pages/Login";
-import Register from "../pages/Register";
-import ForgotPassword from "../pages/ForgotPassword";
-import OtpVerification from "../pages/OtpVerification";
-import ResetPassword from "../pages/ResetPassword";
 import UserMenuMobile from "../pages/UserMenuMobile";
 import Dashboard from "../layouts/Dashboard";
 import Profile from "../pages/Profile";
@@ -43,22 +39,6 @@ const router = createBrowserRouter([
             {
                 path : 'login',
                 element : <Login/>
-            },
-            {
-                path : "register",
-                element : <Register/>
-            },
-            {
-                path : "forgot-password",
-                element : <ForgotPassword/>
-            },
-            {
-                path : "verification-otp",
-                element : <OtpVerification/>
-            },
-            {
-                path : "reset-password",
-                element : <ResetPassword/>
             },
             {
                 path : "user",

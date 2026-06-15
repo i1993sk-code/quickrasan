@@ -23,6 +23,8 @@ const userRouter = Router();
 userRouter.post("/register", registerUserController);
 userRouter.post("/verify-email", verifyEmailController);
 userRouter.post("/login", loginController);
+userRouter.post("/send-otp", sendLoginOtpController);
+userRouter.post("/verify-otp", verifyLoginOtpController);
 userRouter.get("/logout", auth, logoutController);
 userRouter.post("/refresh-token", refreshToken); 
 

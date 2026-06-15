@@ -10,6 +10,14 @@ const SummaryApi = {
         url : '/api/user/login',
         method : 'post'
     },
+    sendOtp : {
+        url : '/api/user/send-otp',
+        method : 'post'
+    },
+    verifyOtp : {
+        url : '/api/user/verify-otp',
+        method : 'post'
+    },
     forgot_password : {
         url : "/api/user/forgot-password",
         method : 'put'

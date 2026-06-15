@@ -1,10 +1,10 @@
-import uploadImageClodinary from "../utils/uploadImageClodinary.js"
+import uploadImageCloudinary from "../utils/uploadImageCloudinary.js"
 
 const uploadImageController = async(request,response)=>{
     try {
         const file = request.file
 
-        const uploadImage = await uploadImageClodinary(file)
+        const uploadImage = await uploadImageCloudinary(file)
 
         return response.json({
             message : "Upload done",

@@ -65,10 +65,10 @@ connectDB().then(async () => {
             const salt = await bcryptjs.genSalt(10);
             const hashed = await bcryptjs.hash('admin@2024', salt);
             await UserModel.create({
-                name: 'Admin', email: 'admin@quickrasan.com', password: hashed,
+                name: 'Admin', email: 'admin@quickrasan.com', mobile: '9999999999', password: hashed,
                 role: 'ADMIN', verify_email: true, status: 'Active'
             });
-            console.log('✅ Admin created: admin@quickrasan.com / admin@2024');
+            console.log('✅ Admin created: admin@quickrasan.com / 9999999999 / admin@2024');
         } else {
             console.log('✅ Admin user already exists');
         }

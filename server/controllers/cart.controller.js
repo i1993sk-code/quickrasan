@@ -34,7 +34,7 @@ export const addToCartItemController = async(request,response)=>{
 
         const updateCartUser = await UserModel.updateOne({ _id : userId},{
             $push : { 
-                shopping_cart : productId
+                shopping_cart : save._id
             }
         })
 
